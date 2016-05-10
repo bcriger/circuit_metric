@@ -24,7 +24,7 @@ def set_prob(ps, ys):
     Output: the probability that this event set occurs
     """
     dxs = range(len(ps))
-    return product(ps[dx] if dx in ys else 1. - ps[dx] for dx in dxs)
+    return product(ps[dx] if dx in ys else 1 - ps[dx] for dx in dxs)
 
 def r_event_prob(prob_set, r=1):
     """
