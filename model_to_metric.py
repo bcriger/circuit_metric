@@ -155,15 +155,19 @@ def str_faults(circ, gt_str):
         
     """
     big_lst = [[] for _ in range(len(circ))]
+    #god forgive me
+    nq = prop_circ(circ, waits=True)[0].nq
+    
     for dx, step in enumerate(prop_circ(circ)):
         big_lst[dx] =  filter(lambda p: p.wt != 0,
                 list(it.chain.from_iterable(
-                    q.restricted_pauli_group(loc.qubits, step.nq)
+                    q.restricted_pauli_group(loc.qubits, nq)
                         for loc in step if loc.kind == gt_str
         )))
+    
     return big_lst
 
-def prop_circ(circ_lst):
+def prop_circ(circ_lst, waits=False):
     """
     QuaEC circuit through which errors will be propagated.
     We remove prep and measurement locations for QuaEC compatibility. 
@@ -172,7 +176,7 @@ def prop_circ(circ_lst):
 
     prop_lst = map(lambda lst: filter(is_allowed, lst), circ_lst)
     dumb_circ = q.Circuit(*sum(prop_lst, []))
-    quaec_circs = list(dumb_circ.group_by_time(pad_with_waits=False))
+    quaec_circs = list(dumb_circ.group_by_time(pad_with_waits=waits))
 
     return quaec_circs
 
@@ -182,7 +186,7 @@ def synd_set(circ, fault, time):
     locations and returns the syndrome pair as a pair of 3D 
     coordinates.
     """
-    cliffs = map(lambda c: c.as_clifford(), prop_circ(circ))
+    cliffs = map(lambda c: c.as_clifford(), prop_circ(circ, waits=True))
     output = [[],[]]
     n_bits = nq(circ) #dumb
     for step, prop in zip(circ[time + 1 :], cliffs[time + 1 :]):
