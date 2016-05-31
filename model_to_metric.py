@@ -10,6 +10,7 @@ import qecc as q
 import SCLayoutClass as sc
 from qecc import Location
 from collections import defaultdict
+import TestClass as tc
 
 # -----------------------------constants-------------------------------#
 ALLOWED_NAMES = Location._CLIFFORD_GATE_KINDS
@@ -91,7 +92,6 @@ def dict_to_metric(pair_p_dict, order=1, wt_bits=None, fmt=None):
         log = np.log
 
     pair_p_dict = {key: -log(prob_odd_events(val, order=order)) for key, val in pair_p_dict.items()}
-    print 'pair_p_dict', pair_p_dict
 
     vertices = uniques(pair_p_dict.keys())
     edges, weights = map(list, zip(*pair_p_dict.items()))
@@ -325,8 +325,7 @@ def fault_probs(distance, test=False):
             out_lst[dx].extend([(f, p / 3) for f in wait[dx]])
             out_lst[dx].extend([(f, p / 15) for f in cnot[dx]])
 
-    return out_lst
-    #, circ, layout
+    return out_lst, circ, layout
 
 # ---------------------------------------------------------------------#
 
@@ -356,3 +355,39 @@ def nq(circ):
     return len(all_bits)
 
 # ---------------------------------------------------------------------#
+
+
+def fault_probs1(test=False):
+    """
+    Returns a list which is as long as the syndrome extractor. Each
+    entry contains the Paulis which may occur immediately after that
+    timestep, and a symbolic probability based on a hardcoded symmetric
+    error model.
+
+    if testing, assigns an integer tuple to the probability, so you can
+    tell which faults do what
+    """
+    layout = tc.TestClass()
+    circ = layout.extractor()
+    p = sp.Symbol('p')
+
+    prep = prep_faults(circ)
+    meas = meas_faults(circ)
+    cnot = str_faults(circ, 'CNOT')
+    wait = str_faults(circ, 'I')
+    # TODO: H, P, CZ faults (by this point you'll want a new model)
+
+    out_lst = [[] for elem in prep]
+    for dx in range(len(prep)):
+        if test:
+            out_lst[dx].extend([(f, p, 'p') for f in prep[dx]])
+            out_lst[dx].extend([(f, p, 'm') for f in meas[dx]])
+            out_lst[dx].extend([(f, p / 3, 'o') for f in wait[dx]])
+            out_lst[dx].extend([(f, p / 15, 'o') for f in cnot[dx]])
+        else:
+            out_lst[dx].extend([(f, p) for f in prep[dx]])
+            out_lst[dx].extend([(f, p) for f in meas[dx]])
+            out_lst[dx].extend([(f, p / 3) for f in wait[dx]])
+            out_lst[dx].extend([(f, p / 15) for f in cnot[dx]])
+
+    return out_lst, circ, layout

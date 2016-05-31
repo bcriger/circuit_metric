@@ -1,0 +1,142 @@
+C:\Users\Chris\Anaconda2\python.exe C:/Users/Chris/Desktop/Edge_weights/source_code/main.py
+>>>>>>>>>>>>>>>>>>>>>> fault_probs
+>>>>>>>>>>>>>>>>>>>>>> prep_faults
+>>>>>>>>>>>>>>>>>>>>>> loc_type
+>>>>>>>>>>>>>>>>>>>>>> loc_type
+>>>>>>>>>>>>>>>>>>>>>> loc_type
+>>>>>>>>>>>>>>>>>>>>>> loc_type
+>>>>>>>>>>>>>>>>>>>>>> loc_type
+>>>>>>>>>>>>>>>>>>>>>> loc_type
+>>>>>>>>>>>>>>>>>>>>>> meas_faults
+>>>>>>>>>>>>>>>>>>>>>> loc_type
+>>>>>>>>>>>>>>>>>>>>>> loc_type
+>>>>>>>>>>>>>>>>>>>>>> loc_type
+>>>>>>>>>>>>>>>>>>>>>> loc_type
+>>>>>>>>>>>>>>>>>>>>>> loc_type
+>>>>>>>>>>>>>>>>>>>>>> loc_type
+>>>>>>>>>>>>>>>>>>>>>> str_faults
+>>>>>>>>>>>>>>>>>>>>>> prop_circ
+circ_lst [[('P_X', 12), ('P_X', 4), ('P_X', 10), ('P_Z', 5), ('P_Z', 11), ('P_Z', 0), ('I', 1), ('I', 2), ('I', 3), ('I', 7), ('I', 8), ('I', 9), ('I', 13), ('I', 14), ('I', 15)], [('CNOT', 12, 15), ('CNOT', 4, 8), ('CNOT', 10, 13), ('CNOT', 9, 5), ('CNOT', 14, 11), ('CNOT', 2, 0), ('I', 1), ('I', 3), ('I', 7)], [('CNOT', 12, 9), ('CNOT', 4, 2), ('CNOT', 10, 7), ('CNOT', 8, 5), ('CNOT', 13, 11), ('CNOT', 1, 0), ('P_X', 6), ('P_Z', 16), ('I', 3), ('I', 14), ('I', 15)], [('CNOT', 12, 14), ('CNOT', 4, 7), ('CNOT', 6, 9), ('CNOT', 3, 5), ('CNOT', 8, 11), ('CNOT', 15, 16), ('M_X', 10), ('M_Z', 0), ('I', 1), ('I', 2), ('I', 13)], [('CNOT', 12, 8), ('CNOT', 4, 1), ('CNOT', 6, 3), ('CNOT', 2, 5), ('CNOT', 7, 11), ('CNOT', 14, 16), ('I', 9), ('I', 13), ('I', 15)], [('M_X', 12), ('M_X', 4), ('M_X', 6), ('M_Z', 5), ('M_Z', 11), ('M_Z', 16), ('I', 1), ('I', 2), ('I', 3), ('I', 7), ('I', 8), ('I', 9), ('I', 13), ('I', 14), ('I', 15)]]
+prop_lst [[('I', 1), ('I', 2), ('I', 3), ('I', 7), ('I', 8), ('I', 9), ('I', 13), ('I', 14), ('I', 15)], [('CNOT', 12, 15), ('CNOT', 4, 8), ('CNOT', 10, 13), ('CNOT', 9, 5), ('CNOT', 14, 11), ('CNOT', 2, 0), ('I', 1), ('I', 3), ('I', 7)], [('CNOT', 12, 9), ('CNOT', 4, 2), ('CNOT', 10, 7), ('CNOT', 8, 5), ('CNOT', 13, 11), ('CNOT', 1, 0), ('I', 3), ('I', 14), ('I', 15)], [('CNOT', 12, 14), ('CNOT', 4, 7), ('CNOT', 6, 9), ('CNOT', 3, 5), ('CNOT', 8, 11), ('CNOT', 15, 16), ('I', 1), ('I', 2), ('I', 13)], [('CNOT', 12, 8), ('CNOT', 4, 1), ('CNOT', 6, 3), ('CNOT', 2, 5), ('CNOT', 7, 11), ('CNOT', 14, 16), ('I', 9), ('I', 13), ('I', 15)], [('I', 1), ('I', 2), ('I', 3), ('I', 7), ('I', 8), ('I', 9), ('I', 13), ('I', 14), ('I', 15)]]
+quaec_circs [Circuit(<I Location on qubits (1,)>, <I Location on qubits (2,)>, <I Location on qubits (3,)>, <I Location on qubits (7,)>, <I Location on qubits (8,)>, <I Location on qubits (9,)>, <I Location on qubits (13,)>, <I Location on qubits (14,)>, <I Location on qubits (15,)>, <I Location on qubits (0,)>, <I Location on qubits (4,)>, <I Location on qubits (5,)>, <I Location on qubits (6,)>, <I Location on qubits (10,)>, <I Location on qubits (11,)>, <I Location on qubits (12,)>, <I Location on qubits (16,)>), Circuit(<CNOT Location on qubits (12, 15)>, <CNOT Location on qubits (4, 8)>, <CNOT Location on qubits (10, 13)>, <CNOT Location on qubits (9, 5)>, <CNOT Location on qubits (14, 11)>, <CNOT Location on qubits (2, 0)>, <I Location on qubits (1,)>, <I Location on qubits (3,)>, <I Location on qubits (7,)>, <I Location on qubits (6,)>, <I Location on qubits (16,)>), Circuit(<CNOT Location on qubits (12, 9)>, <CNOT Location on qubits (4, 2)>, <CNOT Location on qubits (10, 7)>, <CNOT Location on qubits (8, 5)>, <CNOT Location on qubits (13, 11)>, <CNOT Location on qubits (1, 0)>, <I Location on qubits (3,)>, <I Location on qubits (14,)>, <I Location on qubits (15,)>, <I Location on qubits (6,)>, <I Location on qubits (16,)>), Circuit(<CNOT Location on qubits (12, 14)>, <CNOT Location on qubits (4, 7)>, <CNOT Location on qubits (6, 9)>, <CNOT Location on qubits (3, 5)>, <CNOT Location on qubits (8, 11)>, <CNOT Location on qubits (15, 16)>, <I Location on qubits (1,)>, <I Location on qubits (2,)>, <I Location on qubits (13,)>, <I Location on qubits (0,)>, <I Location on qubits (10,)>), Circuit(<CNOT Location on qubits (12, 8)>, <CNOT Location on qubits (4, 1)>, <CNOT Location on qubits (6, 3)>, <CNOT Location on qubits (2, 5)>, <CNOT Location on qubits (7, 11)>, <CNOT Location on qubits (14, 16)>, <I Location on qubits (9,)>, <I Location on qubits (13,)>, <I Location on qubits (15,)>, <I Location on qubits (0,)>, <I Location on qubits (10,)>), Circuit(<I Location on qubits (1,)>, <I Location on qubits (2,)>, <I Location on qubits (3,)>, <I Location on qubits (7,)>, <I Location on qubits (8,)>, <I Location on qubits (9,)>, <I Location on qubits (13,)>, <I Location on qubits (14,)>, <I Location on qubits (15,)>, <I Location on qubits (0,)>, <I Location on qubits (4,)>, <I Location on qubits (5,)>, <I Location on qubits (6,)>, <I Location on qubits (10,)>, <I Location on qubits (11,)>, <I Location on qubits (12,)>, <I Location on qubits (16,)>)]
+>>>>>>>>>>>>>>>>>>>>>> prop_circ
+circ_lst [[('P_X', 12), ('P_X', 4), ('P_X', 10), ('P_Z', 5), ('P_Z', 11), ('P_Z', 0), ('I', 1), ('I', 2), ('I', 3), ('I', 7), ('I', 8), ('I', 9), ('I', 13), ('I', 14), ('I', 15)], [('CNOT', 12, 15), ('CNOT', 4, 8), ('CNOT', 10, 13), ('CNOT', 9, 5), ('CNOT', 14, 11), ('CNOT', 2, 0), ('I', 1), ('I', 3), ('I', 7)], [('CNOT', 12, 9), ('CNOT', 4, 2), ('CNOT', 10, 7), ('CNOT', 8, 5), ('CNOT', 13, 11), ('CNOT', 1, 0), ('P_X', 6), ('P_Z', 16), ('I', 3), ('I', 14), ('I', 15)], [('CNOT', 12, 14), ('CNOT', 4, 7), ('CNOT', 6, 9), ('CNOT', 3, 5), ('CNOT', 8, 11), ('CNOT', 15, 16), ('M_X', 10), ('M_Z', 0), ('I', 1), ('I', 2), ('I', 13)], [('CNOT', 12, 8), ('CNOT', 4, 1), ('CNOT', 6, 3), ('CNOT', 2, 5), ('CNOT', 7, 11), ('CNOT', 14, 16), ('I', 9), ('I', 13), ('I', 15)], [('M_X', 12), ('M_X', 4), ('M_X', 6), ('M_Z', 5), ('M_Z', 11), ('M_Z', 16), ('I', 1), ('I', 2), ('I', 3), ('I', 7), ('I', 8), ('I', 9), ('I', 13), ('I', 14), ('I', 15)]]
+prop_lst [[('I', 1), ('I', 2), ('I', 3), ('I', 7), ('I', 8), ('I', 9), ('I', 13), ('I', 14), ('I', 15)], [('CNOT', 12, 15), ('CNOT', 4, 8), ('CNOT', 10, 13), ('CNOT', 9, 5), ('CNOT', 14, 11), ('CNOT', 2, 0), ('I', 1), ('I', 3), ('I', 7)], [('CNOT', 12, 9), ('CNOT', 4, 2), ('CNOT', 10, 7), ('CNOT', 8, 5), ('CNOT', 13, 11), ('CNOT', 1, 0), ('I', 3), ('I', 14), ('I', 15)], [('CNOT', 12, 14), ('CNOT', 4, 7), ('CNOT', 6, 9), ('CNOT', 3, 5), ('CNOT', 8, 11), ('CNOT', 15, 16), ('I', 1), ('I', 2), ('I', 13)], [('CNOT', 12, 8), ('CNOT', 4, 1), ('CNOT', 6, 3), ('CNOT', 2, 5), ('CNOT', 7, 11), ('CNOT', 14, 16), ('I', 9), ('I', 13), ('I', 15)], [('I', 1), ('I', 2), ('I', 3), ('I', 7), ('I', 8), ('I', 9), ('I', 13), ('I', 14), ('I', 15)]]
+quaec_circs [Circuit(<I Location on qubits (1,)>, <I Location on qubits (2,)>, <I Location on qubits (3,)>, <I Location on qubits (7,)>, <I Location on qubits (8,)>, <I Location on qubits (9,)>, <I Location on qubits (13,)>, <I Location on qubits (14,)>, <I Location on qubits (15,)>), Circuit(<CNOT Location on qubits (12, 15)>, <CNOT Location on qubits (4, 8)>, <CNOT Location on qubits (10, 13)>, <CNOT Location on qubits (9, 5)>, <CNOT Location on qubits (14, 11)>, <CNOT Location on qubits (2, 0)>, <I Location on qubits (1,)>, <I Location on qubits (3,)>, <I Location on qubits (7,)>), Circuit(<CNOT Location on qubits (12, 9)>, <CNOT Location on qubits (4, 2)>, <CNOT Location on qubits (10, 7)>, <CNOT Location on qubits (8, 5)>, <CNOT Location on qubits (13, 11)>, <CNOT Location on qubits (1, 0)>, <I Location on qubits (3,)>, <I Location on qubits (14,)>, <I Location on qubits (15,)>), Circuit(<CNOT Location on qubits (12, 14)>, <CNOT Location on qubits (4, 7)>, <CNOT Location on qubits (6, 9)>, <CNOT Location on qubits (3, 5)>, <CNOT Location on qubits (8, 11)>, <CNOT Location on qubits (15, 16)>, <I Location on qubits (1,)>, <I Location on qubits (2,)>, <I Location on qubits (13,)>), Circuit(<CNOT Location on qubits (12, 8)>, <CNOT Location on qubits (4, 1)>, <CNOT Location on qubits (6, 3)>, <CNOT Location on qubits (2, 5)>, <CNOT Location on qubits (7, 11)>, <CNOT Location on qubits (14, 16)>, <I Location on qubits (9,)>, <I Location on qubits (13,)>, <I Location on qubits (15,)>), Circuit(<I Location on qubits (1,)>, <I Location on qubits (2,)>, <I Location on qubits (3,)>, <I Location on qubits (7,)>, <I Location on qubits (8,)>, <I Location on qubits (9,)>, <I Location on qubits (13,)>, <I Location on qubits (14,)>, <I Location on qubits (15,)>)]
+>>>>>>>>>>>>>>>>>>>>>> str_faults
+>>>>>>>>>>>>>>>>>>>>>> prop_circ
+circ_lst [[('P_X', 12), ('P_X', 4), ('P_X', 10), ('P_Z', 5), ('P_Z', 11), ('P_Z', 0), ('I', 1), ('I', 2), ('I', 3), ('I', 7), ('I', 8), ('I', 9), ('I', 13), ('I', 14), ('I', 15)], [('CNOT', 12, 15), ('CNOT', 4, 8), ('CNOT', 10, 13), ('CNOT', 9, 5), ('CNOT', 14, 11), ('CNOT', 2, 0), ('I', 1), ('I', 3), ('I', 7)], [('CNOT', 12, 9), ('CNOT', 4, 2), ('CNOT', 10, 7), ('CNOT', 8, 5), ('CNOT', 13, 11), ('CNOT', 1, 0), ('P_X', 6), ('P_Z', 16), ('I', 3), ('I', 14), ('I', 15)], [('CNOT', 12, 14), ('CNOT', 4, 7), ('CNOT', 6, 9), ('CNOT', 3, 5), ('CNOT', 8, 11), ('CNOT', 15, 16), ('M_X', 10), ('M_Z', 0), ('I', 1), ('I', 2), ('I', 13)], [('CNOT', 12, 8), ('CNOT', 4, 1), ('CNOT', 6, 3), ('CNOT', 2, 5), ('CNOT', 7, 11), ('CNOT', 14, 16), ('I', 9), ('I', 13), ('I', 15)], [('M_X', 12), ('M_X', 4), ('M_X', 6), ('M_Z', 5), ('M_Z', 11), ('M_Z', 16), ('I', 1), ('I', 2), ('I', 3), ('I', 7), ('I', 8), ('I', 9), ('I', 13), ('I', 14), ('I', 15)]]
+prop_lst [[('I', 1), ('I', 2), ('I', 3), ('I', 7), ('I', 8), ('I', 9), ('I', 13), ('I', 14), ('I', 15)], [('CNOT', 12, 15), ('CNOT', 4, 8), ('CNOT', 10, 13), ('CNOT', 9, 5), ('CNOT', 14, 11), ('CNOT', 2, 0), ('I', 1), ('I', 3), ('I', 7)], [('CNOT', 12, 9), ('CNOT', 4, 2), ('CNOT', 10, 7), ('CNOT', 8, 5), ('CNOT', 13, 11), ('CNOT', 1, 0), ('I', 3), ('I', 14), ('I', 15)], [('CNOT', 12, 14), ('CNOT', 4, 7), ('CNOT', 6, 9), ('CNOT', 3, 5), ('CNOT', 8, 11), ('CNOT', 15, 16), ('I', 1), ('I', 2), ('I', 13)], [('CNOT', 12, 8), ('CNOT', 4, 1), ('CNOT', 6, 3), ('CNOT', 2, 5), ('CNOT', 7, 11), ('CNOT', 14, 16), ('I', 9), ('I', 13), ('I', 15)], [('I', 1), ('I', 2), ('I', 3), ('I', 7), ('I', 8), ('I', 9), ('I', 13), ('I', 14), ('I', 15)]]
+quaec_circs [Circuit(<I Location on qubits (1,)>, <I Location on qubits (2,)>, <I Location on qubits (3,)>, <I Location on qubits (7,)>, <I Location on qubits (8,)>, <I Location on qubits (9,)>, <I Location on qubits (13,)>, <I Location on qubits (14,)>, <I Location on qubits (15,)>, <I Location on qubits (0,)>, <I Location on qubits (4,)>, <I Location on qubits (5,)>, <I Location on qubits (6,)>, <I Location on qubits (10,)>, <I Location on qubits (11,)>, <I Location on qubits (12,)>, <I Location on qubits (16,)>), Circuit(<CNOT Location on qubits (12, 15)>, <CNOT Location on qubits (4, 8)>, <CNOT Location on qubits (10, 13)>, <CNOT Location on qubits (9, 5)>, <CNOT Location on qubits (14, 11)>, <CNOT Location on qubits (2, 0)>, <I Location on qubits (1,)>, <I Location on qubits (3,)>, <I Location on qubits (7,)>, <I Location on qubits (6,)>, <I Location on qubits (16,)>), Circuit(<CNOT Location on qubits (12, 9)>, <CNOT Location on qubits (4, 2)>, <CNOT Location on qubits (10, 7)>, <CNOT Location on qubits (8, 5)>, <CNOT Location on qubits (13, 11)>, <CNOT Location on qubits (1, 0)>, <I Location on qubits (3,)>, <I Location on qubits (14,)>, <I Location on qubits (15,)>, <I Location on qubits (6,)>, <I Location on qubits (16,)>), Circuit(<CNOT Location on qubits (12, 14)>, <CNOT Location on qubits (4, 7)>, <CNOT Location on qubits (6, 9)>, <CNOT Location on qubits (3, 5)>, <CNOT Location on qubits (8, 11)>, <CNOT Location on qubits (15, 16)>, <I Location on qubits (1,)>, <I Location on qubits (2,)>, <I Location on qubits (13,)>, <I Location on qubits (0,)>, <I Location on qubits (10,)>), Circuit(<CNOT Location on qubits (12, 8)>, <CNOT Location on qubits (4, 1)>, <CNOT Location on qubits (6, 3)>, <CNOT Location on qubits (2, 5)>, <CNOT Location on qubits (7, 11)>, <CNOT Location on qubits (14, 16)>, <I Location on qubits (9,)>, <I Location on qubits (13,)>, <I Location on qubits (15,)>, <I Location on qubits (0,)>, <I Location on qubits (10,)>), Circuit(<I Location on qubits (1,)>, <I Location on qubits (2,)>, <I Location on qubits (3,)>, <I Location on qubits (7,)>, <I Location on qubits (8,)>, <I Location on qubits (9,)>, <I Location on qubits (13,)>, <I Location on qubits (14,)>, <I Location on qubits (15,)>, <I Location on qubits (0,)>, <I Location on qubits (4,)>, <I Location on qubits (5,)>, <I Location on qubits (6,)>, <I Location on qubits (10,)>, <I Location on qubits (11,)>, <I Location on qubits (12,)>, <I Location on qubits (16,)>)]
+>>>>>>>>>>>>>>>>>>>>>> prop_circ
+circ_lst [[('P_X', 12), ('P_X', 4), ('P_X', 10), ('P_Z', 5), ('P_Z', 11), ('P_Z', 0), ('I', 1), ('I', 2), ('I', 3), ('I', 7), ('I', 8), ('I', 9), ('I', 13), ('I', 14), ('I', 15)], [('CNOT', 12, 15), ('CNOT', 4, 8), ('CNOT', 10, 13), ('CNOT', 9, 5), ('CNOT', 14, 11), ('CNOT', 2, 0), ('I', 1), ('I', 3), ('I', 7)], [('CNOT', 12, 9), ('CNOT', 4, 2), ('CNOT', 10, 7), ('CNOT', 8, 5), ('CNOT', 13, 11), ('CNOT', 1, 0), ('P_X', 6), ('P_Z', 16), ('I', 3), ('I', 14), ('I', 15)], [('CNOT', 12, 14), ('CNOT', 4, 7), ('CNOT', 6, 9), ('CNOT', 3, 5), ('CNOT', 8, 11), ('CNOT', 15, 16), ('M_X', 10), ('M_Z', 0), ('I', 1), ('I', 2), ('I', 13)], [('CNOT', 12, 8), ('CNOT', 4, 1), ('CNOT', 6, 3), ('CNOT', 2, 5), ('CNOT', 7, 11), ('CNOT', 14, 16), ('I', 9), ('I', 13), ('I', 15)], [('M_X', 12), ('M_X', 4), ('M_X', 6), ('M_Z', 5), ('M_Z', 11), ('M_Z', 16), ('I', 1), ('I', 2), ('I', 3), ('I', 7), ('I', 8), ('I', 9), ('I', 13), ('I', 14), ('I', 15)]]
+prop_lst [[('I', 1), ('I', 2), ('I', 3), ('I', 7), ('I', 8), ('I', 9), ('I', 13), ('I', 14), ('I', 15)], [('CNOT', 12, 15), ('CNOT', 4, 8), ('CNOT', 10, 13), ('CNOT', 9, 5), ('CNOT', 14, 11), ('CNOT', 2, 0), ('I', 1), ('I', 3), ('I', 7)], [('CNOT', 12, 9), ('CNOT', 4, 2), ('CNOT', 10, 7), ('CNOT', 8, 5), ('CNOT', 13, 11), ('CNOT', 1, 0), ('I', 3), ('I', 14), ('I', 15)], [('CNOT', 12, 14), ('CNOT', 4, 7), ('CNOT', 6, 9), ('CNOT', 3, 5), ('CNOT', 8, 11), ('CNOT', 15, 16), ('I', 1), ('I', 2), ('I', 13)], [('CNOT', 12, 8), ('CNOT', 4, 1), ('CNOT', 6, 3), ('CNOT', 2, 5), ('CNOT', 7, 11), ('CNOT', 14, 16), ('I', 9), ('I', 13), ('I', 15)], [('I', 1), ('I', 2), ('I', 3), ('I', 7), ('I', 8), ('I', 9), ('I', 13), ('I', 14), ('I', 15)]]
+quaec_circs [Circuit(<I Location on qubits (1,)>, <I Location on qubits (2,)>, <I Location on qubits (3,)>, <I Location on qubits (7,)>, <I Location on qubits (8,)>, <I Location on qubits (9,)>, <I Location on qubits (13,)>, <I Location on qubits (14,)>, <I Location on qubits (15,)>), Circuit(<CNOT Location on qubits (12, 15)>, <CNOT Location on qubits (4, 8)>, <CNOT Location on qubits (10, 13)>, <CNOT Location on qubits (9, 5)>, <CNOT Location on qubits (14, 11)>, <CNOT Location on qubits (2, 0)>, <I Location on qubits (1,)>, <I Location on qubits (3,)>, <I Location on qubits (7,)>), Circuit(<CNOT Location on qubits (12, 9)>, <CNOT Location on qubits (4, 2)>, <CNOT Location on qubits (10, 7)>, <CNOT Location on qubits (8, 5)>, <CNOT Location on qubits (13, 11)>, <CNOT Location on qubits (1, 0)>, <I Location on qubits (3,)>, <I Location on qubits (14,)>, <I Location on qubits (15,)>), Circuit(<CNOT Location on qubits (12, 14)>, <CNOT Location on qubits (4, 7)>, <CNOT Location on qubits (6, 9)>, <CNOT Location on qubits (3, 5)>, <CNOT Location on qubits (8, 11)>, <CNOT Location on qubits (15, 16)>, <I Location on qubits (1,)>, <I Location on qubits (2,)>, <I Location on qubits (13,)>), Circuit(<CNOT Location on qubits (12, 8)>, <CNOT Location on qubits (4, 1)>, <CNOT Location on qubits (6, 3)>, <CNOT Location on qubits (2, 5)>, <CNOT Location on qubits (7, 11)>, <CNOT Location on qubits (14, 16)>, <I Location on qubits (9,)>, <I Location on qubits (13,)>, <I Location on qubits (15,)>), Circuit(<I Location on qubits (1,)>, <I Location on qubits (2,)>, <I Location on qubits (3,)>, <I Location on qubits (7,)>, <I Location on qubits (8,)>, <I Location on qubits (9,)>, <I Location on qubits (13,)>, <I Location on qubits (14,)>, <I Location on qubits (15,)>)]
+>>>>>>>>>>>>>>>>>>>>>> model_to_pairs
+>>>>>>>>>>>>>>>>>>>>>> synd_set
+>>>>>>>>>>>>>>>>>>>>>> prop_circ
+circ_lst [[('P_X', 12), ('P_X', 4), ('P_X', 10), ('P_Z', 5), ('P_Z', 11), ('P_Z', 0), ('I', 1), ('I', 2), ('I', 3), ('I', 7), ('I', 8), ('I', 9), ('I', 13), ('I', 14), ('I', 15)], [('CNOT', 12, 15), ('CNOT', 4, 8), ('CNOT', 10, 13), ('CNOT', 9, 5), ('CNOT', 14, 11), ('CNOT', 2, 0), ('I', 1), ('I', 3), ('I', 7)], [('CNOT', 12, 9), ('CNOT', 4, 2), ('CNOT', 10, 7), ('CNOT', 8, 5), ('CNOT', 13, 11), ('CNOT', 1, 0), ('P_X', 6), ('P_Z', 16), ('I', 3), ('I', 14), ('I', 15)], [('CNOT', 12, 14), ('CNOT', 4, 7), ('CNOT', 6, 9), ('CNOT', 3, 5), ('CNOT', 8, 11), ('CNOT', 15, 16), ('M_X', 10), ('M_Z', 0), ('I', 1), ('I', 2), ('I', 13)], [('CNOT', 12, 8), ('CNOT', 4, 1), ('CNOT', 6, 3), ('CNOT', 2, 5), ('CNOT', 7, 11), ('CNOT', 14, 16), ('I', 9), ('I', 13), ('I', 15)], [('M_X', 12), ('M_X', 4), ('M_X', 6), ('M_Z', 5), ('M_Z', 11), ('M_Z', 16), ('I', 1), ('I', 2), ('I', 3), ('I', 7), ('I', 8), ('I', 9), ('I', 13), ('I', 14), ('I', 15)]]
+prop_lst [[('I', 1), ('I', 2), ('I', 3), ('I', 7), ('I', 8), ('I', 9), ('I', 13), ('I', 14), ('I', 15)], [('CNOT', 12, 15), ('CNOT', 4, 8), ('CNOT', 10, 13), ('CNOT', 9, 5), ('CNOT', 14, 11), ('CNOT', 2, 0), ('I', 1), ('I', 3), ('I', 7)], [('CNOT', 12, 9), ('CNOT', 4, 2), ('CNOT', 10, 7), ('CNOT', 8, 5), ('CNOT', 13, 11), ('CNOT', 1, 0), ('I', 3), ('I', 14), ('I', 15)], [('CNOT', 12, 14), ('CNOT', 4, 7), ('CNOT', 6, 9), ('CNOT', 3, 5), ('CNOT', 8, 11), ('CNOT', 15, 16), ('I', 1), ('I', 2), ('I', 13)], [('CNOT', 12, 8), ('CNOT', 4, 1), ('CNOT', 6, 3), ('CNOT', 2, 5), ('CNOT', 7, 11), ('CNOT', 14, 16), ('I', 9), ('I', 13), ('I', 15)], [('I', 1), ('I', 2), ('I', 3), ('I', 7), ('I', 8), ('I', 9), ('I', 13), ('I', 14), ('I', 15)]]
+quaec_circs [Circuit(<I Location on qubits (1,)>, <I Location on qubits (2,)>, <I Location on qubits (3,)>, <I Location on qubits (7,)>, <I Location on qubits (8,)>, <I Location on qubits (9,)>, <I Location on qubits (13,)>, <I Location on qubits (14,)>, <I Location on qubits (15,)>, <I Location on qubits (0,)>, <I Location on qubits (4,)>, <I Location on qubits (5,)>, <I Location on qubits (6,)>, <I Location on qubits (10,)>, <I Location on qubits (11,)>, <I Location on qubits (12,)>, <I Location on qubits (16,)>), Circuit(<CNOT Location on qubits (12, 15)>, <CNOT Location on qubits (4, 8)>, <CNOT Location on qubits (10, 13)>, <CNOT Location on qubits (9, 5)>, <CNOT Location on qubits (14, 11)>, <CNOT Location on qubits (2, 0)>, <I Location on qubits (1,)>, <I Location on qubits (3,)>, <I Location on qubits (7,)>, <I Location on qubits (6,)>, <I Location on qubits (16,)>), Circuit(<CNOT Location on qubits (12, 9)>, <CNOT Location on qubits (4, 2)>, <CNOT Location on qubits (10, 7)>, <CNOT Location on qubits (8, 5)>, <CNOT Location on qubits (13, 11)>, <CNOT Location on qubits (1, 0)>, <I Location on qubits (3,)>, <I Location on qubits (14,)>, <I Location on qubits (15,)>, <I Location on qubits (6,)>, <I Location on qubits (16,)>), Circuit(<CNOT Location on qubits (12, 14)>, <CNOT Location on qubits (4, 7)>, <CNOT Location on qubits (6, 9)>, <CNOT Location on qubits (3, 5)>, <CNOT Location on qubits (8, 11)>, <CNOT Location on qubits (15, 16)>, <I Location on qubits (1,)>, <I Location on qubits (2,)>, <I Location on qubits (13,)>, <I Location on qubits (0,)>, <I Location on qubits (10,)>), Circuit(<CNOT Location on qubits (12, 8)>, <CNOT Location on qubits (4, 1)>, <CNOT Location on qubits (6, 3)>, <CNOT Location on qubits (2, 5)>, <CNOT Location on qubits (7, 11)>, <CNOT Location on qubits (14, 16)>, <I Location on qubits (9,)>, <I Location on qubits (13,)>, <I Location on qubits (15,)>, <I Location on qubits (0,)>, <I Location on qubits (10,)>), Circuit(<I Location on qubits (1,)>, <I Location on qubits (2,)>, <I Location on qubits (3,)>, <I Location on qubits (7,)>, <I Location on qubits (8,)>, <I Location on qubits (9,)>, <I Location on qubits (13,)>, <I Location on qubits (14,)>, <I Location on qubits (15,)>, <I Location on qubits (0,)>, <I Location on qubits (4,)>, <I Location on qubits (5,)>, <I Location on qubits (6,)>, <I Location on qubits (10,)>, <I Location on qubits (11,)>, <I Location on qubits (12,)>, <I Location on qubits (16,)>)]
+>>>> [<Clifford operator on 17 qubits at 0x47c3dd8>, <Clifford operator on 17 qubits at 0x47cbb00>, <Clifford operator on 17 qubits at 0x47cb908>, <Clifford operator on 17 qubits at 0x47c3438>, <Clifford operator on 17 qubits at 0x47d53c8>, <Clifford operator on 17 qubits at 0x47bdc50>]
+[[('CNOT', 12, 15), ('CNOT', 4, 8), ('CNOT', 10, 13), ('CNOT', 9, 5), ('CNOT', 14, 11), ('CNOT', 2, 0), ('I', 1), ('I', 3), ('I', 7)], [('CNOT', 12, 9), ('CNOT', 4, 2), ('CNOT', 10, 7), ('CNOT', 8, 5), ('CNOT', 13, 11), ('CNOT', 1, 0), ('P_X', 6), ('P_Z', 16), ('I', 3), ('I', 14), ('I', 15)], [('CNOT', 12, 14), ('CNOT', 4, 7), ('CNOT', 6, 9), ('CNOT', 3, 5), ('CNOT', 8, 11), ('CNOT', 15, 16), ('M_X', 10), ('M_Z', 0), ('I', 1), ('I', 2), ('I', 13)], [('CNOT', 12, 8), ('CNOT', 4, 1), ('CNOT', 6, 3), ('CNOT', 2, 5), ('CNOT', 7, 11), ('CNOT', 14, 16), ('I', 9), ('I', 13), ('I', 15)], [('M_X', 12), ('M_X', 4), ('M_X', 6), ('M_Z', 5), ('M_Z', 11), ('M_Z', 16), ('I', 1), ('I', 2), ('I', 3), ('I', 7), ('I', 8), ('I', 9), ('I', 13), ('I', 14), ('I', 15)]]
+[<Clifford operator on 17 qubits at 0x47cbb00>, <Clifford operator on 17 qubits at 0x47cb908>, <Clifford operator on 17 qubits at 0x47c3438>, <Clifford operator on 17 qubits at 0x47d53c8>, <Clifford operator on 17 qubits at 0x47bdc50>]
+[([('CNOT', 12, 15), ('CNOT', 4, 8), ('CNOT', 10, 13), ('CNOT', 9, 5), ('CNOT', 14, 11), ('CNOT', 2, 0), ('I', 1), ('I', 3), ('I', 7)], <Clifford operator on 17 qubits at 0x47cbb00>), ([('CNOT', 12, 9), ('CNOT', 4, 2), ('CNOT', 10, 7), ('CNOT', 8, 5), ('CNOT', 13, 11), ('CNOT', 1, 0), ('P_X', 6), ('P_Z', 16), ('I', 3), ('I', 14), ('I', 15)], <Clifford operator on 17 qubits at 0x47cb908>), ([('CNOT', 12, 14), ('CNOT', 4, 7), ('CNOT', 6, 9), ('CNOT', 3, 5), ('CNOT', 8, 11), ('CNOT', 15, 16), ('M_X', 10), ('M_Z', 0), ('I', 1), ('I', 2), ('I', 13)], <Clifford operator on 17 qubits at 0x47c3438>), ([('CNOT', 12, 8), ('CNOT', 4, 1), ('CNOT', 6, 3), ('CNOT', 2, 5), ('CNOT', 7, 11), ('CNOT', 14, 16), ('I', 9), ('I', 13), ('I', 15)], <Clifford operator on 17 qubits at 0x47d53c8>), ([('M_X', 12), ('M_X', 4), ('M_X', 6), ('M_Z', 5), ('M_Z', 11), ('M_Z', 16), ('I', 1), ('I', 2), ('I', 3), ('I', 7), ('I', 8), ('I', 9), ('I', 13), ('I', 14), ('I', 15)], <Clifford operator on 17 qubits at 0x47bdc50>)]
+step= [('CNOT', 12, 15), ('CNOT', 4, 8), ('CNOT', 10, 13), ('CNOT', 9, 5), ('CNOT', 14, 11), ('CNOT', 2, 0), ('I', 1), ('I', 3), ('I', 7)]
+>>>>>>>>>>>>>>>>>>>>>> loc_type
+[]
+>>>>>>>>>>>>>>>>>>>>>> loc_type
+>>>>>>>>>>>>>>>>>>>>>> syndromes
+fault= i^0 Z[12]
+synd_lst= []
+step= [('CNOT', 12, 9), ('CNOT', 4, 2), ('CNOT', 10, 7), ('CNOT', 8, 5), ('CNOT', 13, 11), ('CNOT', 1, 0), ('P_X', 6), ('P_Z', 16), ('I', 3), ('I', 14), ('I', 15)]
+>>>>>>>>>>>>>>>>>>>>>> loc_type
+[('P_X', 6), ('P_Z', 16)]
+>>>>>>>>>>>>>>>>>>>>>> loc_type
+6 IIIIIIIIIIIIZIIII
+IIIIIIIIIIIIZIIII
+16 IIIIIIIIIIIIZIIII
+IIIIIIIIIIIIZIIII
+>>>>>>>>>>>>>>>>>>>>>> syndromes
+fault= i^0 Z[12]
+synd_lst= []
+step= [('CNOT', 12, 14), ('CNOT', 4, 7), ('CNOT', 6, 9), ('CNOT', 3, 5), ('CNOT', 8, 11), ('CNOT', 15, 16), ('M_X', 10), ('M_Z', 0), ('I', 1), ('I', 2), ('I', 13)]
+>>>>>>>>>>>>>>>>>>>>>> loc_type
+[]
+>>>>>>>>>>>>>>>>>>>>>> loc_type
+>>>>>>>>>>>>>>>>>>>>>> syndromes
+fault= i^0 Z[12]
+test_pauli= i^0 X[10]
+test_pauli= i^0 Z[0]
+synd_lst= []
+step= [('CNOT', 12, 8), ('CNOT', 4, 1), ('CNOT', 6, 3), ('CNOT', 2, 5), ('CNOT', 7, 11), ('CNOT', 14, 16), ('I', 9), ('I', 13), ('I', 15)]
+>>>>>>>>>>>>>>>>>>>>>> loc_type
+[]
+>>>>>>>>>>>>>>>>>>>>>> loc_type
+>>>>>>>>>>>>>>>>>>>>>> syndromes
+fault= i^0 Z[12]
+synd_lst= []
+step= [('M_X', 12), ('M_X', 4), ('M_X', 6), ('M_Z', 5), ('M_Z', 11), ('M_Z', 16), ('I', 1), ('I', 2), ('I', 3), ('I', 7), ('I', 8), ('I', 9), ('I', 13), ('I', 14), ('I', 15)]
+>>>>>>>>>>>>>>>>>>>>>> loc_type
+[]
+>>>>>>>>>>>>>>>>>>>>>> loc_type
+>>>>>>>>>>>>>>>>>>>>>> syndromes
+fault= i^0 Z[12]
+test_pauli= i^0 X[12]
+test_pauli= i^0 X[4]
+test_pauli= i^0 X[6]
+test_pauli= i^0 Z[5]
+test_pauli= i^0 Z[11]
+test_pauli= i^0 Z[16]
+synd_lst= [('M_X', 12)]
+===========
+>>>>>>>>>>>>>>>>>>>>>> loc_type
+>>>>>>>>>>>>>>>>>>>>>> syndromes
+fault= i^0 I
+synd_lst= []
+>>>>>>>>>>>>>>>>>>>>>> loc_type
+>>>>>>>>>>>>>>>>>>>>>> syndromes
+fault= i^0 I
+synd_lst= []
+>>>>>>>>>>>>>>>>>>>>>> loc_type
+>>>>>>>>>>>>>>>>>>>>>> syndromes
+fault= i^0 I
+synd_lst= []
+>>>>>>>>>>>>>>>>>>>>>> loc_type
+>>>>>>>>>>>>>>>>>>>>>> syndromes
+fault= i^0 I
+test_pauli= i^0 X[10]
+test_pauli= i^0 Z[0]
+synd_lst= []
+>>>>>>>>>>>>>>>>>>>>>> loc_type
+>>>>>>>>>>>>>>>>>>>>>> syndromes
+fault= i^0 I
+synd_lst= []
+>>>>>>>>>>>>>>>>>>>>>> loc_type
+>>>>>>>>>>>>>>>>>>>>>> syndromes
+fault= i^0 I
+test_pauli= i^0 X[12]
+test_pauli= i^0 X[4]
+test_pauli= i^0 X[6]
+test_pauli= i^0 Z[5]
+test_pauli= i^0 Z[11]
+test_pauli= i^0 Z[16]
+synd_lst= []
+>>>>>>>>>>>>>>>>>>>>>> synds_to_changes
+<SCLayoutClass.SCLayout object at 0x000000000404A828>
+-----
+[[('M_X', 12)], []]
+Traceback (most recent call last):
+  File "C:/Users/Chris/Desktop/Edge_weights/source_code/main.py", line 104, in <module>
+    md.model_to_pairs(output_list, circ, layout)
+  File "C:\Users\Chris\Desktop\Edge_weights\source_code\model_to_metric.py", line 293, in model_to_pairs
+    step_dict = {synds_to_changes(layout, synd_set(circ, tpl[0], t)): tpl[1] for tpl in f_ps[t]}
+  File "C:\Users\Chris\Desktop\Edge_weights\source_code\model_to_metric.py", line 293, in <dictcomp>
+    step_dict = {synds_to_changes(layout, synd_set(circ, tpl[0], t)): tpl[1] for tpl in f_ps[t]}
+  File "C:\Users\Chris\Desktop\Edge_weights\source_code\model_to_metric.py", line 251, in synds_to_changes
+    crd_lst.append(layout.map[:synd[1]] + (0,))
+  File "C:\Users\Chris\Anaconda2\lib\site-packages\bidict\_common.py", line 57, in __getitem__
+    return self._fwd[key]
+TypeError: unhashable type
+
+Process finished with exit code 1

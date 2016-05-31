@@ -18,7 +18,6 @@ class SCLayout(object):
         anc['z_right'] = tuple([(2 * d, y) for y in range(4, 2 * d, 4)])
         anc['z_left'] = tuple([(0, y) for y in range(2 * d - 4, 0, -4)])
         anc['x_bot'] = tuple([(x, 0) for x in range(2 * d - 2, 0, -4)])
-
         x_sq_anc = tuple(it.product(range(4, 2 * d, 4),
                                     range(2 * d - 2, 0, -4)))
         x_sq_anc += tuple(it.product(range(2, 2 * d, 4), 
@@ -30,10 +29,10 @@ class SCLayout(object):
         z_sq_anc += tuple(it.product(range(4, 2 * d, 4), 
                                      range(2 * d - 4, 0, -4)))
         anc['z_sq'] = z_sq_anc
-
         self.ancillas = anc
         
         bits = self.datas + list(it.chain.from_iterable(anc.values()))
+
         self.map = bd.bidict(zip(sorted(bits), range(len(bits))))
 
     # @property

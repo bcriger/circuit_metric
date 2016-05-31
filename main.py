@@ -97,11 +97,25 @@ print(w)
 syndromes = md.synd_set(circ, [], 1)
 print 'syndromes = ', syndromes
 '''
-f_ps = md.fault_probs(3, False)
-layout = sc.SCLayout(3)
-circ = layout.extractor()
-output = md.model_to_pairs(f_ps, circ, layout)
-# print 'output : ', output
+f_ps, circ, layout = md.fault_probs(3, False)
+#layout = sc.SCLayout(3)
+#circ = layout.extractor()
+# output = md.model_to_pairs(f_ps, circ, layout)
+#print 'output : ', output
+# X_synd = md.css_pairs(output, layout, 'X')
+#print 'X_synd = ', X_synd
+# Z_synd = md.css_pairs(output, layout, 'Z')
+#print 'Z_synd = ', Z_synd
+# verticesX, edgesX, weightsX = md.dict_to_metric(X_synd)
+# print 'VerticesX = ', verticesX
+# print 'EdgesX = ', edgesX
+# print 'WeightsX = ', weightsX
+# verticesZ, edgesZ, weightsZ = md.dict_to_metric(Z_synd)
+# print 'VerticesZ = ', verticesZ
+# print 'EdgesZ = ', edgesZ
+# print 'WeightsZ = ', weightsZ
+
+
 
 # [
 #     [('P_X', 12), ('P_X', 4), ('P_X', 10), ('P_Z', 5), ('P_Z', 11), ('P_Z', 0), ('I', 1), ('I', 2), ('I', 3), ('I', 7), ('I', 8), ('I', 9), ('I', 13), ('I', 14), ('I', 15)],
