@@ -91,7 +91,8 @@ def dict_to_metric(pair_p_dict, order=1, wt_bits=None, fmt=None):
     else:
         log = np.log
 
-    pair_p_dict = {key: -log(prob_odd_events(val, order=order)) for key, val in pair_p_dict.items()}
+    pair_p_dict = {key: -log(prob_odd_events(val, order=order))
+                    for key, val in pair_p_dict.items()}
 
     vertices = uniques(pair_p_dict.keys())
     edges, weights = map(list, zip(*pair_p_dict.items()))
@@ -120,7 +121,6 @@ def loc_type(timestep, string):
     returns all locations in a timestep whose identifiers contain a 
     certain string.
     """
-
     return filter(lambda tpl: string in tpl[0], timestep)
 
 
@@ -244,6 +244,7 @@ def syndromes(step, fault, n_bits):
     synd_lst = []
     
     for loc in step:
+        #read pauli type off of location label (ugly)
         if 'M_' in loc[0]:
             ltr = loc[0][-1]
             test_pauli = q.Pauli.from_sparse({loc[1]: ltr}, n_bits)
@@ -262,7 +263,10 @@ def model_to_pairs(f_ps, circ, layout):
     output = defaultdict(list)
 
     for t in range(len(f_ps)):
-        step_dict = {synds_to_changes(layout, synd_set(circ, tpl[0], t)): tpl[1] for tpl in f_ps[t]}
+        step_dict = {
+                    synds_to_changes(layout, synd_set(circ, f, t)): p
+                    for f, p in f_ps[t]
+                    }
         for key, val in step_dict.items():
             output[key].append(val)
 
@@ -301,6 +305,8 @@ def fault_probs(distance, test=False):
 
     if testing, assigns an integer tuple to the probability, so you can
     tell which faults do what
+
+
     """
     layout = sc.SCLayout(distance)
     circ = layout.extractor()
@@ -312,19 +318,35 @@ def fault_probs(distance, test=False):
     wait = str_faults(circ, 'I')
     # TODO: H, P, CZ faults (by this point you'll want a new model)
 
+    # It looks like we need to find a better way to do this, but we don't.
+    # It's just a test model, we'll have something much worse IRL.
     out_lst = [[] for elem in prep]
     for dx in range(len(prep)):
         if test:
             out_lst[dx].extend([(f, p, 'p') for f in prep[dx]])
-            out_lst[dx].extend([(f, p, 'm') for f in meas[dx]])
             out_lst[dx].extend([(f, p / 3, 'o') for f in wait[dx]])
             out_lst[dx].extend([(f, p / 15, 'o') for f in cnot[dx]])
+            out_lst[dx].extend([(f, p, 'm') for f in meas[dx]])
         else:
             out_lst[dx].extend([(f, p) for f in prep[dx]])
-            out_lst[dx].extend([(f, p) for f in meas[dx]])
             out_lst[dx].extend([(f, p / 3) for f in wait[dx]])
             out_lst[dx].extend([(f, p / 15) for f in cnot[dx]])
-
+            out_lst[dx].extend([(f, p) for f in meas[dx]])
+        # post-process: determine if the same error happens twice in the
+        # same timestep. If so, adjust the probability of that Pauli so 
+        # that it's the probability of that Pauli happening an odd number
+        # of times.
+        # This happens with measurement errors, which are in the timestep
+        # *before the measurement* instead of after (like every other 
+        # gate).
+        key_set = list(set([tpl[0] for tpl in out_lst[dx]]))
+        for key in key_set:
+            if quantify(out_lst[dx], lambda tpl: tpl[0] == key) > 1:
+                repeat_ps = [tpl[1] for tpl in out_lst[dx] if tpl[0] == key]
+                unique_p = prob_odd_events(repeat_ps, len(repeat_ps))
+                out_lst[dx] = [elm for elm in out_lst[dx] if elm[0] != key]
+                out_lst[dx].append((key, unique_p))
+        
     return out_lst, circ, layout
 
 # ---------------------------------------------------------------------#
@@ -353,6 +375,13 @@ def nq(circ):
     """
     all_bits = list(set(reduce(add, [qubits(_) for _ in circ])))
     return len(all_bits)
+
+def quantify(iterable, pred=bool):
+    """
+    Counts how many times a predicate is true for elements in an 
+    iterable
+    """
+    return sum(it.imap(pred, iterable))
 
 # ---------------------------------------------------------------------#
 
