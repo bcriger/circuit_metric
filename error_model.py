@@ -18,12 +18,7 @@ class PauliErrorModel(object):
     """
     def __init__(self, p_arr, qs, check=True):
         if check:
-            try: 
-                p_arr = np.array(p_arr)
-            except Exception as err:
-                raise TypeError("Input array of probabilities ({}) "
-                    "does not cast to array.  ".format(p_arr) + 
-                    "Error: " + err.strerror)
+            p_arr = array_cast(p_arr)
             
             if type(qs) is set:
                 raise TypeError("THOU SHALT NOT USE UN-ORDERED TYPES FOR "
@@ -61,6 +56,34 @@ class PauliErrorModel(object):
         indx = int_sample(self.p_arr)
         return int_to_pauli(indx, self.qs)
 
+class NoisyClifford(object):
+    """
+    Sometimes, a noisy Clifford operation is best represented not as a
+    perfect Clifford followed by Pauli noise, but as a probability 
+    distribution over the Cliffords themselves (see
+    github.com/bcriger/rough_notes/Gates_With_T2.pdf for examples).
+
+    I assume that such Cliffords will only act on 1-2 qubits, and that
+    the probability distribution will have small support on the set of
+    Cliffords (e.g. a Y_{90} with T_2 only has support on 4 out of 24
+    Cliffords). 
+
+    For NoisyClifford, you put in a p_arr (same format and checks as 
+    the p_arr in PauliErrorModel) and an ordered list of Cliffords 
+    (format TBD).
+    """
+    def __init__(self, p_arr, clifford_lst, check=True):
+        if check:
+            p_arr = array_cast(p_arr)
+        #TODO: Finish checks
+        self.p_arr = p_arr
+        self.clifford_lst = clifford_lst
+    
+    def sample(self):
+        return self.clifford_lst[int_sample(self.p_arr)]
+
+#-----------------------convenience functions-------------------------#
+
 def int_sample(probs):
     
     value = np.random.rand()
@@ -85,3 +108,14 @@ def int_to_pauli(intgr, lbl_lst):
     xs, zs = bits[ : len(lbl_lst)], bits[len(lbl_lst) : ]
     return sp.Pauli({l for l, b in zip(lbl_lst, xs) if b == '1'},
                     {l for l, b in zip(lbl_lst, zs) if b == '1'})
+
+def array_cast(p_arr):
+    """
+    Nice check to see that something casts to an array
+    """
+    try: 
+        return np.array(p_arr)
+    except Exception as err:
+        raise TypeError("Input array of probabilities ({}) "
+            "does not cast to array.  ".format(p_arr) + 
+            "Error: " + err.strerror)
