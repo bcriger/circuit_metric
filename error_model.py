@@ -7,45 +7,45 @@ class PauliErrorModel(object):
     """
     Small, dense Pauli Error Model. 
 
-    Wraps an array and a set.
+    Wraps an array and a list.
 
     The array must be flat with 4**n real entries for n the length of
-    the set `qs`. These entries must sum to 1 to within tolerance TOL
-    (set to 10**-14 by default).
+    the list `qs`. These entries must sum to 1 to within tolerance TOL
+    (list to 10**-14 by default).
     
-    All the set has to do is cast to a set.
+    All the list has to do is cast to a list.
 
     """
-    def __init__(self, p_arr, qs):
-        
-        try: 
-            p_arr = np.array(p_arr)
-        except Exception as err:
-            raise TypeError("Input array of probabilities ({}) "
-                "does not cast to array.  ".format(p_arr) + 
-                "Error: " + err.strerror)
-        
-        if type(qs) is set:
-            raise TypeError("THOU SHALT NOT USE UN-ORDERED TYPES FOR "
-                "QUBIT LISTS")
+    def __init__(self, p_arr, qs, check=True):
+        if check:
+            try: 
+                p_arr = np.array(p_arr)
+            except Exception as err:
+                raise TypeError("Input array of probabilities ({}) "
+                    "does not cast to array.  ".format(p_arr) + 
+                    "Error: " + err.strerror)
+            
+            if type(qs) is set:
+                raise TypeError("THOU SHALT NOT USE UN-ORDERED TYPES FOR "
+                    "QUBIT LISTS")
 
-        try: 
-            qs = list(qs)
-        except Exception as err:
-            raise TypeError("Input set of qubits ({}) "
-                "does not cast to list.  ".format(qs) + 
-                "Error: " + err.strerror)
-        
-        delta = abs(sum(p_arr) - 1.)
-        if delta > TOL:
-            raise ValueError("Input probabilities must sum to" + 
-                " unity. \n    Input: {}".format(p_arr) + 
-                "\n    Difference: {}".format(delta))
-        
-        if len(p_arr) != 4 ** len(qs):
-            raise ValueError("Number of qubits inconsistent. Qubit "
-                "labels imply {} qubit(s), but".format(len(qs)) + 
-                " there are {} probabilities.".format(len(p_arr)))
+            try: 
+                qs = list(qs)
+            except Exception as err:
+                raise TypeError("Input list of qubits ({}) "
+                    "does not cast to list.  ".format(qs) + 
+                    "Error: " + err.strerror)
+            
+            delta = abs(sum(p_arr) - 1.)
+            if delta > TOL:
+                raise ValueError("Input probabilities must sum to" + 
+                    " unity. \n    Input: {}".format(p_arr) + 
+                    "\n    Difference: {}".format(delta))
+            
+            if len(p_arr) != 4 ** len(qs):
+                raise ValueError("Number of qubits inconsistent. Qubit "
+                    "labels imply {} qubit(s), but".format(len(qs)) + 
+                    " there are {} probabilities.".format(len(p_arr)))
 
         self.p_arr = p_arr
         self.qs = qs
