@@ -85,7 +85,16 @@ class NoisyClifford(object):
 #-----------------------convenience functions-------------------------#
 
 def int_sample(probs):
-    
+    """
+    This is a little fancy, so I'll explain it. 
+    If we are given an array of probabilities [p_0, p_1, ..., p_n],
+    we can sample, yielding k if a unit uniform deviate is
+    within the interval (sum_{k<j}p_k, sum_{k<j}p_k + p_k). To 
+    accomplish this, we first take such a sample, then subtract off
+    p_k's as we proceed. In theory, distributions which are sorted 
+    descending will be most efficiently sampled, but in practice it
+    doesn't make a difference.
+    """
     value = np.random.rand()
     
     for idx, p in enumerate(probs):
