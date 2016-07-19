@@ -19,6 +19,7 @@ class PauliErrorModel(object):
     def __init__(self, p_arr, qs, check=True):
         if check:
             p_arr = array_cast(p_arr)
+            prob_sum_check(p_arr)
             
             if type(qs) is set:
                 raise TypeError("THOU SHALT NOT USE UN-ORDERED TYPES FOR "
@@ -30,12 +31,6 @@ class PauliErrorModel(object):
                 raise TypeError("Input list of qubits ({}) "
                     "does not cast to list.  ".format(qs) + 
                     "Error: " + err.strerror)
-            
-            delta = abs(sum(p_arr) - 1.)
-            if delta > TOL:
-                raise ValueError("Input probabilities must sum to" + 
-                    " unity. \n    Input: {}".format(p_arr) + 
-                    "\n    Difference: {}".format(delta))
             
             if len(p_arr) != 4 ** len(qs):
                 raise ValueError("Number of qubits inconsistent. Qubit "
@@ -75,8 +70,10 @@ class NoisyClifford(object):
     def __init__(self, p_arr, clifford_lst, check=True):
         if check:
             p_arr = array_cast(p_arr)
-        #TODO: Finish checks
+            prob_sum_check(p_arr)
+
         self.p_arr = p_arr
+        #TODO: Check that the Cliffords are Cliffords?
         self.clifford_lst = clifford_lst
     
     def sample(self):
@@ -93,7 +90,7 @@ def int_sample(probs):
     accomplish this, we first take such a sample, then subtract off
     p_k's as we proceed. In theory, distributions which are sorted 
     descending will be most efficiently sampled, but in practice it
-    doesn't make a difference.
+    doesn't make a difference. We explicitly don't sort. 
     """
     value = np.random.rand()
     
@@ -128,3 +125,10 @@ def array_cast(p_arr):
         raise TypeError("Input array of probabilities ({}) "
             "does not cast to array.  ".format(p_arr) + 
             "Error: " + err.strerror)
+
+def prob_sum_check(p_arr):
+    delta = abs(sum(p_arr) - 1.)
+    if delta > TOL:
+        raise ValueError("Input probabilities must sum to" + 
+            " unity. \n    Input: {}".format(p_arr) + 
+            "\n    Difference: {}".format(delta))
