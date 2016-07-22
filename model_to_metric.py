@@ -12,12 +12,17 @@ from qecc import Location
 from collections import defaultdict
 import TestClass as tc
 
-# -----------------------------constants-------------------------------#
+#-----------------------------constants-------------------------------#
 ALLOWED_NAMES = Location._CLIFFORD_GATE_KINDS
 
-# ---------------------------------------------------------------------#
+#---------------------------------------------------------------------#
 
-# -----------------------probability/statistics------------------------#
+#---------------------------------------------------------------------#
+
+#---------------------------------------------------------------------#
+
+
+#-----------------------probability/statistics------------------------#
 
 
 def set_prob(ps, ys):
@@ -111,9 +116,9 @@ def dict_to_metric(pair_p_dict, order=1, wt_bits=None, fmt=None):
 
     return vertices, edges, weights
 
-# ---------------------------------------------------------------------#
+#---------------------------------------------------------------------#
 
-# ------------------------circuit manipulation-------------------------#
+#------------------------circuit manipulation-------------------------#
 
 
 def loc_type(timestep, string):
@@ -291,9 +296,9 @@ def css_pairs(synds, layout, synd_tp):
 
     return pairs
 
-# ---------------------------------------------------------------------#
+#---------------------------------------------------------------------#
 
-# -----------------------surface code specifics------------------------#
+#-----------------------surface code specifics------------------------#
 
 
 def fault_probs(distance, test=False):
@@ -349,9 +354,9 @@ def fault_probs(distance, test=False):
         
     return out_lst, circ, layout
 
-# ---------------------------------------------------------------------#
+#---------------------------------------------------------------------#
 
-# -----------------------convenience functions-------------------------#
+#-----------------------convenience functions-------------------------#
 
 is_allowed = lambda tpl: tpl[0] in ALLOWED_NAMES
 is_allowed.__doc__ = """tests whether the zeroth element of a tuple is
@@ -383,7 +388,7 @@ def quantify(iterable, pred=bool):
     """
     return sum(it.imap(pred, iterable))
 
-# ---------------------------------------------------------------------#
+#---------------------------------------------------------------------#
 
 
 def fault_probs1(test=False):
