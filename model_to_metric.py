@@ -11,14 +11,33 @@ import SCLayoutClass as sc
 from qecc import Location
 from collections import defaultdict
 import TestClass as tc
+import networkx as nx
 
 #-----------------------------constants-------------------------------#
 ALLOWED_NAMES = Location._CLIFFORD_GATE_KINDS
 
 #---------------------------------------------------------------------#
 
-#---------------------------------------------------------------------#
+#--------------------------graph manipulation-------------------------#
+def boundary_dists(metric):
+    """
+    Input: metric; a NetworkX.Graph object, consisting of vertices,
+    edges and weights.
 
+    Output: a dictionary mapping vertices of the graph to distances 
+    calculated using a multi-source Dijkstra algorithm from all of the
+    metric boundary vertices to the vertex in question. 
+
+    Note: The boundary vertices in the metric do not correspond to the 
+    boundary vertices on the final graph. To produce boundary vertices 
+    for the metric, we clone vertices that have weight-one syndromes 
+    caused by first-order (probability p) errors in the model. These
+    vertices are never placed in the syndrome graph on which an MWPM is
+    calculated. Rather, a vertex is created for every syndrome change, 
+    and connected to a new vertex by an edge with weight given by this
+    function. 
+    """
+    pass
 #---------------------------------------------------------------------#
 
 
