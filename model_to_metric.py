@@ -121,17 +121,14 @@ def dict_to_metric(pair_p_dict, order=1, wt_bits=None, fmt=None):
     vertices = uniques(pair_p_dict.keys())
     edges, weights = map(list, zip(*pair_p_dict.items()))
     
-    # Append virtual vertices when you make the graph, not when you make
-    # the metric:
-    '''
-    #append virtual vertices, assume they are tuples
-    virtual_vertices = [vertex + ('b',) for vertex in vertices]
-    vertices.extend(virtual_vertices)
-    #weight-0 edges between all virtual vertices
-    weight_0_edges = list(it.combinations(virtual_vertices, r=2))
-    edges.extend(weight_0_edges)
-    weights.extend([0 for _ in range(len(weight_0_edges))])
-    '''
+    # Append boundary vertices:
+    for edge_dx in range(len(edges)):
+        edge = edges[edge_dx]
+        if len(edge) == 1:
+            # should connect to boundary
+            new_vertex = ('B',) + edge[0]
+            vertices.append(new_vertex)
+            edges[edge_dx] = (edge[0], new_vertex)
 
     return vertices, edges, weights
 
@@ -294,6 +291,8 @@ def model_to_pairs(f_ps, circ, layout):
         for key, val in step_dict.items():
             output[key].append(val)
 
+    del output[()] #ignore syndrome-less errors
+
     return output
 
 
@@ -313,6 +312,8 @@ def css_pairs(synds, layout, synd_tp):
     for key, val in synds.items():
         pairs[tuple(filter(lambda j: j[:-1] in ancs, key))].extend(val)
 
+    del pairs[()] #ignore errors with inappropriate syndromes
+
     return pairs
 
 #---------------------------------------------------------------------#
@@ -320,7 +321,7 @@ def css_pairs(synds, layout, synd_tp):
 #-----------------------surface code specifics------------------------#
 
 
-def fault_probs(distance, test=False):
+def fault_probs(distance, p=None, test=False):
     """
     Returns a list which is as long as the syndrome extractor. Each 
     entry contains the Paulis which may occur immediately after that 
@@ -329,12 +330,11 @@ def fault_probs(distance, test=False):
 
     if testing, assigns an integer tuple to the probability, so you can
     tell which faults do what
-
-
     """
+
     layout = sc.SCLayout(distance)
     circ = layout.extractor()
-    p = sp.Symbol('p')
+    p = p if p else sp.Symbol('p')
 
     prep = prep_faults(circ)
     meas = meas_faults(circ)
@@ -406,5 +406,20 @@ def quantify(iterable, pred=bool):
     iterable
     """
     return sum(it.imap(pred, iterable))
+
+#---------------------------------------------------------------------#
+
+#------------------------user-level functions-------------------------#
+
+def css_metrics(model, circ, layout):
+    """
+    Just a little something to make generating MWPM metrics a little 
+    easier. 
+    Note: `circ` is usually the result of a Layout method. 
+    """
+    pairs = model_to_pairs(model, circ, layout)
+    x_dict, z_dict = map(lambda _: css_pairs(pairs, layout, _), 'xz')
+    x_metric, z_metric = map(dict_to_metric, [x_dict, z_dict])
+    return x_metric, z_metric
 
 #---------------------------------------------------------------------#
