@@ -35,7 +35,7 @@ def boundary_dists(metric):
     vertices are never placed in the syndrome graph on which an MWPM is
     calculated. Rather, a vertex is created for every syndrome change, 
     and connected to a new vertex by an edge with weight given by this
-    function. 
+    function's output. 
     """
     pass
 #---------------------------------------------------------------------#
@@ -408,39 +408,3 @@ def quantify(iterable, pred=bool):
     return sum(it.imap(pred, iterable))
 
 #---------------------------------------------------------------------#
-
-
-def fault_probs1(test=False):
-    """
-    Returns a list which is as long as the syndrome extractor. Each
-    entry contains the Paulis which may occur immediately after that
-    timestep, and a symbolic probability based on a hardcoded symmetric
-    error model.
-
-    if testing, assigns an integer tuple to the probability, so you can
-    tell which faults do what
-    """
-    layout = tc.TestClass()
-    circ = layout.extractor()
-    p = sp.Symbol('p')
-
-    prep = prep_faults(circ)
-    meas = meas_faults(circ)
-    cnot = str_faults(circ, 'CNOT')
-    wait = str_faults(circ, 'I')
-    # TODO: H, P, CZ faults (by this point you'll want a new model)
-
-    out_lst = [[] for elem in prep]
-    for dx in range(len(prep)):
-        if test:
-            out_lst[dx].extend([(f, p, 'p') for f in prep[dx]])
-            out_lst[dx].extend([(f, p, 'm') for f in meas[dx]])
-            out_lst[dx].extend([(f, p / 3, 'o') for f in wait[dx]])
-            out_lst[dx].extend([(f, p / 15, 'o') for f in cnot[dx]])
-        else:
-            out_lst[dx].extend([(f, p) for f in prep[dx]])
-            out_lst[dx].extend([(f, p) for f in meas[dx]])
-            out_lst[dx].extend([(f, p / 3) for f in wait[dx]])
-            out_lst[dx].extend([(f, p / 15) for f in cnot[dx]])
-
-    return out_lst, circ, layout
