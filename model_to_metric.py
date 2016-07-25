@@ -37,7 +37,9 @@ def boundary_dists(metric):
     and connected to a new vertex by an edge with weight given by this
     function's output. 
     """
-    pass
+    b_nodes = [v for v in metric.nodes() if 'B' in v]
+    dist_iter = nx.multi_source_dijkstra_path_length(metric, b_nodes)
+    return list(dist_iter)
 #---------------------------------------------------------------------#
 
 
@@ -406,6 +408,15 @@ def quantify(iterable, pred=bool):
     iterable
     """
     return sum(it.imap(pred, iterable))
+
+def metric_to_nx(vertices, edges, weights):
+    graph = nx.Graph()
+    graph.add_nodes_from(vertices)
+    graph.add_weighted_edges_from([
+                                    e + (w,)
+                                    for e, w in zip(edges, weights)
+                                ])
+    return graph
 
 #---------------------------------------------------------------------#
 
