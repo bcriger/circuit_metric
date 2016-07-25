@@ -418,6 +418,9 @@ def metric_to_nx(vertices, edges, weights):
                                 ])
     return graph
 
+v_shft = lambda v, t: v[:-1] + (v[-1] + t,)
+v_shft.__doc__ = "Shifts the last co-ordinate of a tuple v by t." 
+
 #---------------------------------------------------------------------#
 
 #------------------------user-level functions-------------------------#
@@ -433,4 +436,27 @@ def css_metrics(model, circ, layout):
     x_metric, z_metric = map(dict_to_metric, [x_dict, z_dict])
     return x_metric, z_metric
 
+def stack_metrics(metric_lst):
+    """
+    Input: a list or iterable of (vertices, edges, weights) tuples,
+    which correspond to measurement layers (2 consecutive rounds of
+    measurement, where vertex time co-ordinates are 0/1).
+
+    Output: a large (vertices, edges, weights) tuple, containing 
+    information on all rounds of measurement. 
+    
+    Notes:
+        Use this function before converting to NetworkX.
+        This function allows us to model time-dependent errors.
+    """
+    vs, es, ws = [], [], []
+
+    for m_dx, metric in enumerate(metric_lst):
+        vs.extend([ v_shft(v, m_dx) for v in metric[0]])
+        es.extend([ 
+                    map(lambda v: v_shft(v, m_dx), e)
+                    for e in metric[1]
+                    ])
+        ws.extend(metric[2])
+    return (list(set(vs)), es, ws)
 #---------------------------------------------------------------------#
