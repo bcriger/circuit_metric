@@ -1,0 +1,10 @@
+Metadata-Version: 1.0
+Name: circuit-metric
+Version: 0.0.0
+Summary: A little library so you can convert Pauli error models on quantum circuits into a MWPM metric.
+Home-page: UNKNOWN
+Author: Ben Criger
+Author-email: BCriger@gmail.com
+License: UNKNOWN
+Description: UNKNOWN
+Platform: UNKNOWN

@@ -10,8 +10,16 @@ import qecc as q
 import SCLayoutClass as sc
 from qecc import Location
 from collections import defaultdict
-import TestClass as tc
 import networkx as nx
+
+__all__ = [
+            "ALLOWED_NAMES", "boundary_dists", "set_prob",
+            "r_event_prob", "prob_odd_events", "dict_to_metric",
+            "loc_type", "prep_faults", "meas_faults", "str_faults",
+            "prop_circ", "synd_set", "synds_to_changes", "syndromes",
+            "model_to_pairs", "css_pairs", "fault_probs", "nq",
+            "quantify", "metric_to_nx", "css_metrics", "stack_metrics"
+        ]
 
 #-----------------------------constants-------------------------------#
 ALLOWED_NAMES = Location._CLIFFORD_GATE_KINDS
