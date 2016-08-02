@@ -23,7 +23,6 @@ __all__ = [
 
 #-----------------------------constants-------------------------------#
 ALLOWED_NAMES = Location._CLIFFORD_GATE_KINDS
-
 #---------------------------------------------------------------------#
 
 #--------------------------graph manipulation-------------------------#
@@ -52,8 +51,6 @@ def boundary_dists(metric):
 
 
 #-----------------------probability/statistics------------------------#
-
-
 def set_prob(ps, ys):
     """
     Input: ps; a list of probabilities of certain events occurring
@@ -141,12 +138,9 @@ def dict_to_metric(pair_p_dict, order=1, wt_bits=None, fmt=None):
             edges[edge_dx] = (edge[0], new_vertex)
 
     return vertices, edges, weights
-
 #---------------------------------------------------------------------#
 
 #------------------------circuit manipulation-------------------------#
-
-
 def loc_type(timestep, string):
     """
     returns all locations in a timestep whose identifiers contain a 
@@ -325,12 +319,9 @@ def css_pairs(synds, layout, synd_tp):
     del pairs[()] #ignore errors with inappropriate syndromes
 
     return pairs
-
 #---------------------------------------------------------------------#
 
 #-----------------------surface code specifics------------------------#
-
-
 def fault_probs(distance, p=None, test=False):
     """
     Returns a list which is as long as the syndrome extractor. Each 
@@ -382,22 +373,24 @@ def fault_probs(distance, p=None, test=False):
                 out_lst[dx].append((key, unique_p))
         
     return out_lst, circ, layout
-
 #---------------------------------------------------------------------#
 
 #-----------------------convenience functions-------------------------#
-
 is_allowed = lambda tpl: tpl[0] in ALLOWED_NAMES
 is_allowed.__doc__ = """tests whether the zeroth element of a tuple is
  in the allowed list of gate names from qecc.Location""" 
+
  
 uniques = lambda x: list(set(reduce(add, x)))
 uniques.__doc__ = "returns unique elements from an iterator"
 
+
 product = lambda num_iter: reduce(mul, num_iter)
+
 
 prep_fault = {'P_X': 'Z', 'P_Z': 'X'}
 meas_fault = {'M_X': 'Z', 'M_Z': 'X'}
+
 
 qubits = lambda tpls: list(set(reduce(add, [t[1:] for t in tpls])))
 
@@ -410,12 +403,14 @@ def nq(circ):
     all_bits = list(set(reduce(add, [qubits(_) for _ in circ])))
     return len(all_bits)
 
+
 def quantify(iterable, pred=bool):
     """
     Counts how many times a predicate is true for elements in an 
     iterable
     """
     return sum(it.imap(pred, iterable))
+
 
 def metric_to_nx(vertices, edges, weights):
     graph = nx.Graph()
@@ -426,13 +421,12 @@ def metric_to_nx(vertices, edges, weights):
                                 ])
     return graph
 
+
 v_shft = lambda v, t: v[:-1] + (v[-1] + t,)
 v_shft.__doc__ = "Shifts the last co-ordinate of a tuple v by t." 
-
 #---------------------------------------------------------------------#
 
 #------------------------user-level functions-------------------------#
-
 def css_metrics(model, circ, layout):
     """
     Just a little something to make generating MWPM metrics a little 
@@ -443,6 +437,7 @@ def css_metrics(model, circ, layout):
     x_dict, z_dict = map(lambda _: css_pairs(pairs, layout, _), 'xz')
     x_metric, z_metric = map(dict_to_metric, [x_dict, z_dict])
     return x_metric, z_metric
+
 
 def stack_metrics(metric_lst):
     """
