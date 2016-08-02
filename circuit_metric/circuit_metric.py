@@ -11,6 +11,7 @@ import SCLayoutClass as sc
 from qecc import Location
 from collections import defaultdict
 import networkx as nx
+import vapory as vp
 
 __all__ = [
             "ALLOWED_NAMES", "boundary_dists", "set_prob",
@@ -264,7 +265,7 @@ def syndromes(step, fault, n_bits):
     """
     Determines which measurement locations in a circuit are activated 
     by a given fault.
-    The circuit is a single syndrome extractor
+    The circuit is a single syndrome extractor.
     """
     synd_lst = []
     
@@ -273,7 +274,7 @@ def syndromes(step, fault, n_bits):
         if 'M_' in loc[0]:
             ltr = loc[0][-1]
             test_pauli = q.Pauli.from_sparse({loc[1]: ltr}, n_bits)
-            if q.com(test_pauli, fault):
+            if q.com(test_pauli, fault) == 1:
                 synd_lst.append(loc)
 
     return synd_lst
@@ -326,11 +327,11 @@ def fault_probs(distance, p=None, test=False):
     """
     Returns a list which is as long as the syndrome extractor. Each 
     entry contains the Paulis which may occur immediately after that 
-    timestep, and a symbolic probability based on a hardcoded symmetric
-    error model.
+    timestep, and a symbolic/numeric probability based on a hardcoded
+    symmetric error model.
 
-    if testing, assigns an integer tuple to the probability, so you can
-    tell which faults do what
+    if testing, assigns a string to the pair, so you can tell which
+    faults do what.
     """
 
     layout = sc.SCLayout(distance)
@@ -462,4 +463,20 @@ def stack_metrics(metric_lst):
                     ])
         ws.extend(metric[2])
     return (list(set(vs)), es, ws)
+
+def visualize(metric_stack, flnm):
+    """
+    Uses POVRay (through vapory) to produce a Fowler-like nest diagram. 
+    """
+    verts, edges, weights = metric_stack
+
+    #position camera beyond largest x/y/z co-ord.
+    camera_pos = map(max, zip(*verts))
+
+    camera = Camera( 'location', [0,2,-3], 'look_at', [0,1,2] )
+    light = LightSource( [2,4,-3], 'color', [1,1,1] )
+    sphere = Sphere( [0,1,2], 2, Texture( Pigment( 'color', [1,0,1] )))
+
+    scene = Scene( camera, objects = node_lst + edge_lst)
+    scene.render(flnm, width=2000, height=2000)
 #---------------------------------------------------------------------#

@@ -1,6 +1,21 @@
 import itertools as it
 from operator import add
 import bidict as bd
+import sparse_pauli as sp 
+
+
+#------------------------------constants------------------------------#
+SHIFTS = {
+            'N': ((-1, 1), (1, 1)),
+            'E': ((1, 1), (1, -1)),
+            'W': ((-1, 1), (-1, -1)),
+            'S': ((1, -1), (-1, -1))
+            }
+SHIFTS['A'] = SHIFTS['E'] + SHIFTS['W']
+SHIFTS_README = """(dx, dy) so that, given an ancilla co-ordinate
+                   (x, y), there will be data qubits at
+                   (x + dx, y + dy)."""
+#---------------------------------------------------------------------#
 
 
 class SCLayout(object):
@@ -52,6 +67,37 @@ class SCLayout(object):
         elif dx == 1:
             names.remove('z_left')
         return reduce(add, [self.ancillas[key] for key in names])
+
+    def stabilisers(self):
+        """
+        Sometimes it's convenient to have the stabilisers of a surface
+        code, especially when doing a 2d example. 
+        """
+        x_stabs, z_stabs = [], []
+        
+        #TODO: Fix Copypasta, PEP8 me.
+
+        for crd_tag, shft_tag in zip(['x_sq', 'x_top', 'x_bot'],
+                                     ['A',    'S',     'N'    ]): 
+            for crd in self.ancillas[crd_tag]:
+                pauli = sp.Pauli(
+                    [ad(crd, dx)
+                    for dx in SHIFTS[shft_tag]], [])
+                x_stabs.append(pauli)
+        
+        for crd_tag, shft_tag in zip(['z_sq', 'z_left', 'z_right'],
+                                     ['A',    'E',      'W'    ]): 
+            for crd in self.ancillas[crd_tag]:
+                pauli = sp.Pauli([], 
+                    [ad(crd, dx) for dx in SHIFTS[shft_tag]])
+                z_stabs.append(pauli)
+        
+        return {'x' : x_stabs, 'z' : z_stabs}
+    
+    def logicals(self):
+        x_crds = filter(lambda pr: pr[0] == 1, self.datas)
+        z_crds = filter(lambda pr: pr[1] == 1, self.datas)
+        return [sp.Pauli(x_crds, []), sp.Pauli([], z_crds)]
 
     def extractor(self):
         """
