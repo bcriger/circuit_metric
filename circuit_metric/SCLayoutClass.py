@@ -49,6 +49,7 @@ class SCLayout(object):
         bits = self.datas + list(it.chain.from_iterable(anc.values()))
 
         self.map = bd.bidict(zip(sorted(bits), range(len(bits))))
+        self.d = d
 
     # @property
     def x_ancs(self, dx=None):
@@ -68,12 +69,22 @@ class SCLayout(object):
             names.remove('z_left')
         return reduce(add, [self.ancillas[key] for key in names])
 
+    def anc_type(self, anc):
+        """
+        Super-dangerous, I've assumed correct input.
+        FIXME
+        TODO
+        """
+        if isinstance(anc, int):
+            anc = self.map[:anc]
+        return 'X' if anc in self.x_ancs() else 'Z'
+
     def stabilisers(self):
         """
         Sometimes it's convenient to have the stabilisers of a surface
         code, especially when doing a 2d example. 
         """
-        x_stabs, z_stabs = [], []
+        x_stabs, z_stabs = {}, {}
         
         #TODO: Fix Copypasta, PEP8 me.
 
@@ -81,16 +92,16 @@ class SCLayout(object):
                                      ['A',    'S',     'N'    ]): 
             for crd in self.ancillas[crd_tag]:
                 pauli = sp.Pauli(
-                    [ad(crd, dx)
+                    [self.map[ad(crd, dx)]
                     for dx in SHIFTS[shft_tag]], [])
-                x_stabs.append(pauli)
+                x_stabs[self.map[crd]] = pauli
         
         for crd_tag, shft_tag in zip(['z_sq', 'z_left', 'z_right'],
                                      ['A',    'E',      'W'    ]): 
             for crd in self.ancillas[crd_tag]:
                 pauli = sp.Pauli([], 
-                    [ad(crd, dx) for dx in SHIFTS[shft_tag]])
-                z_stabs.append(pauli)
+                    [self.map[ad(crd, dx)] for dx in SHIFTS[shft_tag]])
+                z_stabs[self.map[crd]] = pauli
         
         return {'x' : x_stabs, 'z' : z_stabs}
     
@@ -98,6 +109,15 @@ class SCLayout(object):
         x_crds = filter(lambda pr: pr[0] == 1, self.datas)
         z_crds = filter(lambda pr: pr[1] == 1, self.datas)
         return [sp.Pauli(x_crds, []), sp.Pauli([], z_crds)]
+
+    def boundary_points(self):
+        """
+        Returns a set of fictional points that you can use to turn a 
+        boundary distance finding problem into a pairwise distance 
+        finding problem, with the typical IID XZ 2D scenario.
+        """
+        n = 2 * self.d
+        return ((0, 0), (0, n), (n, 0), (n, n))
 
     def extractor(self):
         """
