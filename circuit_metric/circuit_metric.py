@@ -252,11 +252,11 @@ def synds_to_changes(layout, synds):
     crd_lst = []
 
     for synd in synds[0]:
-        crd_lst.append(layout.map[:synd[1]] + (0,))
+        crd_lst.append(layout.map.inv[synd[1]] + (0,))
     
     for synd in synds[0] + synds[1]:
         if (synd in synds[0]) != (synd in synds[1]):
-            crd_lst.append(layout.map[:synd[1]] + (1,))
+            crd_lst.append(layout.map.inv[synd[1]] + (1,))
     
     return tuple(crd_lst)
 

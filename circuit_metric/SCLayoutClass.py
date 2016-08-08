@@ -76,7 +76,7 @@ class SCLayout(object):
         TODO
         """
         if isinstance(anc, int):
-            anc = self.map[:anc]
+            anc = self.map.inv[anc]
         return 'X' if anc in self.x_ancs() else 'Z'
 
     def stabilisers(self):
