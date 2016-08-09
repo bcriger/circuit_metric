@@ -103,21 +103,33 @@ class SCLayout(object):
                     [self.map[ad(crd, dx)] for dx in SHIFTS[shft_tag]])
                 z_stabs[self.map[crd]] = pauli
         
-        return {'x' : x_stabs, 'z' : z_stabs}
+        return {'X' : x_stabs, 'Z' : z_stabs}
     
     def logicals(self):
-        x_crds = filter(lambda pr: pr[0] == 1, self.datas)
-        z_crds = filter(lambda pr: pr[1] == 1, self.datas)
-        return [sp.Pauli(x_crds, []), sp.Pauli([], z_crds)]
+        x_set = [
+                    self.map[_] 
+                    for _ in 
+                    filter(lambda pr: pr[0] == 1, self.datas)
+                    ]
+        z_set = [
+                    self.map[_] 
+                    for _ in
+                    filter(lambda pr: pr[1] == 1, self.datas)
+                    ]
+        return [sp.Pauli(x_set, []), sp.Pauli([], z_set)]
 
-    def boundary_points(self):
+    def boundary_points(self, anc_type):
         """
         Returns a set of fictional points that you can use to turn a 
         boundary distance finding problem into a pairwise distance 
         finding problem, with the typical IID XZ 2D scenario.
         """
-        n = 2 * self.d
-        return ((0, 0), (0, n), (n, 0), (n, n))
+        d = self.d
+        z_top = tuple([(x, 2 * d) for x in range(4, 2 * d, 4)])
+        x_right = tuple([(2 * d, y) for y in range(2, 2 * d, 4)])
+        x_left = tuple([(0, y) for y in range(2 * d - 2, 0, -4)])
+        z_bot = tuple([(x, 0) for x in range(2 * d - 4, 0, -4)])
+        return z_top + z_bot if anc_type == 'Z' else x_right + x_left
 
     def extractor(self):
         """
