@@ -11,6 +11,7 @@ import SCLayoutClass as sc
 from qecc import Location
 from collections import defaultdict
 import networkx as nx
+import vapory as vp
 
 __all__ = [
             "ALLOWED_NAMES", "boundary_dists", "set_prob",
@@ -18,12 +19,12 @@ __all__ = [
             "loc_type", "prep_faults", "meas_faults", "str_faults",
             "prop_circ", "synd_set", "synds_to_changes", "syndromes",
             "model_to_pairs", "css_pairs", "fault_probs", "nq",
-            "quantify", "metric_to_nx", "css_metrics", "stack_metrics"
+            "quantify", "metric_to_nx", "css_metrics", "stack_metrics",
+            "weighted_event_graph"
         ]
 
 #-----------------------------constants-------------------------------#
 ALLOWED_NAMES = Location._CLIFFORD_GATE_KINDS
-
 #---------------------------------------------------------------------#
 
 #--------------------------graph manipulation-------------------------#
@@ -52,8 +53,6 @@ def boundary_dists(metric):
 
 
 #-----------------------probability/statistics------------------------#
-
-
 def set_prob(ps, ys):
     """
     Input: ps; a list of probabilities of certain events occurring
@@ -113,14 +112,18 @@ def dict_to_metric(pair_p_dict, order=1, wt_bits=None, fmt=None):
     """
     # TODO: Implement rounded edge weights and remove this Exception.
     if wt_bits is not None:
-        raise NotImplementedError("Rounding edge weights to integers is not yet supported.")
+        raise NotImplementedError("Rounding edge weights to integers"
+                                    " is not yet supported.")
     # TODO: Implement an alternate format and remove this Exception.
     if fmt is not None:
-        raise NotImplementedError("Returning in different formats is not yet supported.\n"
-                                  "Return value is a list 3-tuple:(vertices, edges, weights).")
+        raise NotImplementedError("Returning in different formats is "
+                                    "not yet supported.\nReturn value "
+                                    "is a list 3-tuple:(vertices, "
+                                    "edges, weights).")
     
     # decide whether to use numeric or symbolic log
-    if any([isinstance(val, sp.Symbol) for val in uniques(pair_p_dict.values())]):
+    vals = uniques(pair_p_dict.values())
+    if any([isinstance(val, sp.Symbol) for val in vals]):
         log = sp.log
     else:
         log = np.log
@@ -141,12 +144,9 @@ def dict_to_metric(pair_p_dict, order=1, wt_bits=None, fmt=None):
             edges[edge_dx] = (edge[0], new_vertex)
 
     return vertices, edges, weights
-
 #---------------------------------------------------------------------#
 
 #------------------------circuit manipulation-------------------------#
-
-
 def loc_type(timestep, string):
     """
     returns all locations in a timestep whose identifiers contain a 
@@ -186,7 +186,8 @@ def str_faults(circ, gt_str):
     Takes a sub-circuit which has been padded with waits, and returns an
     iterator onto Paulis which may occur as faults after this sub-circuit.
     
-    :param qecc.Circuit circuit: Subcircuit to in which faults are to be considered.
+    :param qecc.Circuit circuit: Subcircuit to in which faults are to 
+    be considered.
 
     """
     big_lst = [[] for _ in range(len(circ))]
@@ -257,11 +258,11 @@ def synds_to_changes(layout, synds):
     crd_lst = []
 
     for synd in synds[0]:
-        crd_lst.append(layout.map[:synd[1]] + (0,))
+        crd_lst.append(layout.map.inv[synd[1]] + (0,))
     
     for synd in synds[0] + synds[1]:
         if (synd in synds[0]) != (synd in synds[1]):
-            crd_lst.append(layout.map[:synd[1]] + (1,))
+            crd_lst.append(layout.map.inv[synd[1]] + (1,))
     
     return tuple(crd_lst)
 
@@ -270,7 +271,7 @@ def syndromes(step, fault, n_bits):
     """
     Determines which measurement locations in a circuit are activated 
     by a given fault.
-    The circuit is a single syndrome extractor
+    The circuit is a single syndrome extractor.
     """
     synd_lst = []
     
@@ -279,7 +280,7 @@ def syndromes(step, fault, n_bits):
         if 'M_' in loc[0]:
             ltr = loc[0][-1]
             test_pauli = q.Pauli.from_sparse({loc[1]: ltr}, n_bits)
-            if q.com(test_pauli, fault):
+            if q.com(test_pauli, fault) == 1:
                 synd_lst.append(loc)
 
     return synd_lst
@@ -325,21 +326,18 @@ def css_pairs(synds, layout, synd_tp):
     del pairs[()] #ignore errors with inappropriate syndromes
 
     return pairs
-
 #---------------------------------------------------------------------#
 
 #-----------------------surface code specifics------------------------#
-
-
 def fault_probs(distance, p=None, test=False):
     """
     Returns a list which is as long as the syndrome extractor. Each 
     entry contains the Paulis which may occur immediately after that 
-    timestep, and a symbolic probability based on a hardcoded symmetric
-    error model.
+    timestep, and a symbolic/numeric probability based on a hardcoded
+    symmetric error model.
 
-    if testing, assigns an integer tuple to the probability, so you can
-    tell which faults do what
+    if testing, assigns a string to the pair, so you can tell which
+    faults do what.
     """
 
     layout = sc.SCLayout(distance)
@@ -352,7 +350,8 @@ def fault_probs(distance, p=None, test=False):
     wait = str_faults(circ, 'I')
     # TODO: H, P, CZ faults (by this point you'll want a new model)
 
-    # It looks like we need to find a better way to do this, but we don't.
+    # It looks like we need to find a better way to do this, but we 
+    # don't.
     # It's just a test model, we'll have something much worse IRL.
     out_lst = [[] for elem in prep]
     for dx in range(len(prep)):
@@ -382,22 +381,24 @@ def fault_probs(distance, p=None, test=False):
                 out_lst[dx].append((key, unique_p))
         
     return out_lst, circ, layout
-
 #---------------------------------------------------------------------#
 
 #-----------------------convenience functions-------------------------#
-
 is_allowed = lambda tpl: tpl[0] in ALLOWED_NAMES
 is_allowed.__doc__ = """tests whether the zeroth element of a tuple is
  in the allowed list of gate names from qecc.Location""" 
+
  
 uniques = lambda x: list(set(reduce(add, x)))
 uniques.__doc__ = "returns unique elements from an iterator"
 
+
 product = lambda num_iter: reduce(mul, num_iter)
+
 
 prep_fault = {'P_X': 'Z', 'P_Z': 'X'}
 meas_fault = {'M_X': 'Z', 'M_Z': 'X'}
+
 
 qubits = lambda tpls: list(set(reduce(add, [t[1:] for t in tpls])))
 
@@ -410,12 +411,14 @@ def nq(circ):
     all_bits = list(set(reduce(add, [qubits(_) for _ in circ])))
     return len(all_bits)
 
+
 def quantify(iterable, pred=bool):
     """
     Counts how many times a predicate is true for elements in an 
     iterable
     """
     return sum(it.imap(pred, iterable))
+
 
 def metric_to_nx(vertices, edges, weights):
     graph = nx.Graph()
@@ -426,13 +429,12 @@ def metric_to_nx(vertices, edges, weights):
                                 ])
     return graph
 
+
 v_shft = lambda v, t: v[:-1] + (v[-1] + t,)
 v_shft.__doc__ = "Shifts the last co-ordinate of a tuple v by t." 
-
 #---------------------------------------------------------------------#
 
 #------------------------user-level functions-------------------------#
-
 def css_metrics(model, circ, layout):
     """
     Just a little something to make generating MWPM metrics a little 
@@ -443,6 +445,7 @@ def css_metrics(model, circ, layout):
     x_dict, z_dict = map(lambda _: css_pairs(pairs, layout, _), 'xz')
     x_metric, z_metric = map(dict_to_metric, [x_dict, z_dict])
     return x_metric, z_metric
+
 
 def stack_metrics(metric_lst):
     """
@@ -467,4 +470,43 @@ def stack_metrics(metric_lst):
                     ])
         ws.extend(metric[2])
     return (list(set(vs)), es, ws)
+
+def weighted_event_graph(event_graph, metric):
+    """
+    Adds weights to a graph of 'detection events', by passing each pair
+    of vertices to a single-source Dijkstra algorithm. 
+    While this may not be necessary for the highly-symmetric test
+    metrics produced in theoretical studies, there are no guarantees on
+    whether hypotenuse edges are lower in weight than the sum of the 
+    weights of the associated perpendicular edges.
+    Also, there may be 'hot spots' (short chains of times/locations
+    where errors are very likely) that justify not taking a straight
+    path from point A to point B. 
+
+    Warning: if you put in a weighted graph, this will overwrite your
+    weights.  
+    """
+    for edge in event_graph.edges():
+        event_graph[edge[0]][edge[1]]['weight'] = \
+            nx.dijkstra_path_length(metric, edge[0], edge[1])
+
+    return event_graph
+
+def visualize(metric_stack, flnm):
+    """
+    Uses POVRay (through vapory) to produce a Fowler-like nest diagram. 
+    """
+    #FIXME Finish
+    raise NotImplementedError("This is not done yet.")
+    verts, edges, weights = metric_stack
+
+    #position camera beyond largest x/y/z co-ord.
+    camera_pos = map(max, zip(*verts))
+
+    camera = Camera( 'location', [0,2,-3], 'look_at', [0,1,2] )
+    light = LightSource( [2,4,-3], 'color', [1,1,1] )
+    sphere = Sphere( [0,1,2], 2, Texture( Pigment( 'color', [1,0,1] )))
+
+    scene = Scene( camera, objects = node_lst + edge_lst)
+    scene.render(flnm, width=2000, height=2000)
 #---------------------------------------------------------------------#

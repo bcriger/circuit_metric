@@ -1,6 +1,21 @@
 import itertools as it
 from operator import add
 import bidict as bd
+import sparse_pauli as sp 
+
+
+#------------------------------constants------------------------------#
+SHIFTS = {
+            'N': ((-1, 1), (1, 1)),
+            'E': ((1, 1), (1, -1)),
+            'W': ((-1, 1), (-1, -1)),
+            'S': ((1, -1), (-1, -1))
+            }
+SHIFTS['A'] = SHIFTS['E'] + SHIFTS['W']
+SHIFTS_README = """(dx, dy) so that, given an ancilla co-ordinate
+                   (x, y), there will be data qubits at
+                   (x + dx, y + dy)."""
+#---------------------------------------------------------------------#
 
 
 class SCLayout(object):
@@ -34,6 +49,7 @@ class SCLayout(object):
         bits = self.datas + list(it.chain.from_iterable(anc.values()))
 
         self.map = bd.bidict(zip(sorted(bits), range(len(bits))))
+        self.d = d
 
     # @property
     def x_ancs(self, dx=None):
@@ -52,6 +68,68 @@ class SCLayout(object):
         elif dx == 1:
             names.remove('z_left')
         return reduce(add, [self.ancillas[key] for key in names])
+
+    def anc_type(self, anc):
+        """
+        Super-dangerous, I've assumed correct input.
+        FIXME
+        TODO
+        """
+        if isinstance(anc, int):
+            anc = self.map.inv[anc]
+        return 'X' if anc in self.x_ancs() else 'Z'
+
+    def stabilisers(self):
+        """
+        Sometimes it's convenient to have the stabilisers of a surface
+        code, especially when doing a 2d example. 
+        """
+        x_stabs, z_stabs = {}, {}
+        
+        #TODO: Fix Copypasta, PEP8 me.
+
+        for crd_tag, shft_tag in zip(['x_sq', 'x_top', 'x_bot'],
+                                     ['A',    'S',     'N'    ]): 
+            for crd in self.ancillas[crd_tag]:
+                pauli = sp.Pauli(
+                    [self.map[ad(crd, dx)]
+                    for dx in SHIFTS[shft_tag]], [])
+                x_stabs[self.map[crd]] = pauli
+        
+        for crd_tag, shft_tag in zip(['z_sq', 'z_left', 'z_right'],
+                                     ['A',    'E',      'W'    ]): 
+            for crd in self.ancillas[crd_tag]:
+                pauli = sp.Pauli([], 
+                    [self.map[ad(crd, dx)] for dx in SHIFTS[shft_tag]])
+                z_stabs[self.map[crd]] = pauli
+        
+        return {'X' : x_stabs, 'Z' : z_stabs}
+    
+    def logicals(self):
+        x_set = [
+                    self.map[_] 
+                    for _ in 
+                    filter(lambda pr: pr[0] == 1, self.datas)
+                    ]
+        z_set = [
+                    self.map[_] 
+                    for _ in
+                    filter(lambda pr: pr[1] == 1, self.datas)
+                    ]
+        return [sp.Pauli(x_set, []), sp.Pauli([], z_set)]
+
+    def boundary_points(self, anc_type):
+        """
+        Returns a set of fictional points that you can use to turn a 
+        boundary distance finding problem into a pairwise distance 
+        finding problem, with the typical IID XZ 2D scenario.
+        """
+        d = self.d
+        z_top = tuple([(x, 2 * d) for x in range(4, 2 * d, 4)])
+        x_right = tuple([(2 * d, y) for y in range(2, 2 * d, 4)])
+        x_left = tuple([(0, y) for y in range(2 * d - 2, 0, -4)])
+        z_bot = tuple([(x, 0) for x in range(2 * d - 4, 0, -4)])
+        return z_top + z_bot if anc_type == 'Z' else x_right + x_left
 
     def extractor(self):
         """

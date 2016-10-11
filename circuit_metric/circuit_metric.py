@@ -19,7 +19,8 @@ __all__ = [
             "loc_type", "prep_faults", "meas_faults", "str_faults",
             "prop_circ", "synd_set", "synds_to_changes", "syndromes",
             "model_to_pairs", "css_pairs", "fault_probs", "nq",
-            "quantify", "metric_to_nx", "css_metrics", "stack_metrics"
+            "quantify", "metric_to_nx", "css_metrics", "stack_metrics",
+            "weighted_event_graph"
         ]
 
 #-----------------------------constants-------------------------------#
@@ -111,14 +112,18 @@ def dict_to_metric(pair_p_dict, order=1, wt_bits=None, fmt=None):
     """
     # TODO: Implement rounded edge weights and remove this Exception.
     if wt_bits is not None:
-        raise NotImplementedError("Rounding edge weights to integers is not yet supported.")
+        raise NotImplementedError("Rounding edge weights to integers"
+                                    " is not yet supported.")
     # TODO: Implement an alternate format and remove this Exception.
     if fmt is not None:
-        raise NotImplementedError("Returning in different formats is not yet supported.\n"
-                                  "Return value is a list 3-tuple:(vertices, edges, weights).")
+        raise NotImplementedError("Returning in different formats is "
+                                    "not yet supported.\nReturn value "
+                                    "is a list 3-tuple:(vertices, "
+                                    "edges, weights).")
     
     # decide whether to use numeric or symbolic log
-    if any([isinstance(val, sp.Symbol) for val in uniques(pair_p_dict.values())]):
+    vals = uniques(pair_p_dict.values())
+    if any([isinstance(val, sp.Symbol) for val in vals]):
         log = sp.log
     else:
         log = np.log
@@ -181,7 +186,8 @@ def str_faults(circ, gt_str):
     Takes a sub-circuit which has been padded with waits, and returns an
     iterator onto Paulis which may occur as faults after this sub-circuit.
     
-    :param qecc.Circuit circuit: Subcircuit to in which faults are to be considered.
+    :param qecc.Circuit circuit: Subcircuit to in which faults are to 
+    be considered.
 
     """
     big_lst = [[] for _ in range(len(circ))]
@@ -344,7 +350,8 @@ def fault_probs(distance, p=None, test=False):
     wait = str_faults(circ, 'I')
     # TODO: H, P, CZ faults (by this point you'll want a new model)
 
-    # It looks like we need to find a better way to do this, but we don't.
+    # It looks like we need to find a better way to do this, but we 
+    # don't.
     # It's just a test model, we'll have something much worse IRL.
     out_lst = [[] for elem in prep]
     for dx in range(len(prep)):
@@ -464,10 +471,33 @@ def stack_metrics(metric_lst):
         ws.extend(metric[2])
     return (list(set(vs)), es, ws)
 
+def weighted_event_graph(event_graph, metric):
+    """
+    Adds weights to a graph of 'detection events', by passing each pair
+    of vertices to a single-source Dijkstra algorithm. 
+    While this may not be necessary for the highly-symmetric test
+    metrics produced in theoretical studies, there are no guarantees on
+    whether hypotenuse edges are lower in weight than the sum of the 
+    weights of the associated perpendicular edges.
+    Also, there may be 'hot spots' (short chains of times/locations
+    where errors are very likely) that justify not taking a straight
+    path from point A to point B. 
+
+    Warning: if you put in a weighted graph, this will overwrite your
+    weights.  
+    """
+    for edge in event_graph.edges():
+        event_graph[edge[0]][edge[1]]['weight'] = \
+            nx.dijkstra_path_length(metric, edge[0], edge[1])
+
+    return event_graph
+
 def visualize(metric_stack, flnm):
     """
     Uses POVRay (through vapory) to produce a Fowler-like nest diagram. 
     """
+    #FIXME Finish
+    raise NotImplementedError("This is not done yet.")
     verts, edges, weights = metric_stack
 
     #position camera beyond largest x/y/z co-ord.
