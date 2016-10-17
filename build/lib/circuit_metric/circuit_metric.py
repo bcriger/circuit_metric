@@ -7,11 +7,17 @@ import itertools as it
 from operator import mul, add
 import numpy as np
 import qecc as q
-import SCLayoutClass as sc
 from qecc import Location
 from collections import defaultdict
 import networkx as nx
 import vapory as vp
+
+from sys import version_info
+if version_info[0] == 3:
+    from . import SCLayoutClass as sc
+elif version_info[0] == 2:
+    import SCLayoutClass as sc
+
 
 __all__ = [
             "ALLOWED_NAMES", "boundary_dists", "set_prob",
