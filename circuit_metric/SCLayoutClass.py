@@ -92,15 +92,16 @@ class SCLayout(object):
                                      ['A',    'S',     'N'    ]): 
             for crd in self.ancillas[crd_tag]:
                 pauli = sp.Pauli(
-                    [self.map[ad(crd, dx)]
-                    for dx in SHIFTS[shft_tag]], [])
+                    x_set=[self.map[ad(crd, dx)]
+                    for dx in SHIFTS[shft_tag]])
                 x_stabs[self.map[crd]] = pauli
         
         for crd_tag, shft_tag in zip(['z_sq', 'z_left', 'z_right'],
                                      ['A',    'E',      'W'    ]): 
             for crd in self.ancillas[crd_tag]:
-                pauli = sp.Pauli([], 
-                    [self.map[ad(crd, dx)] for dx in SHIFTS[shft_tag]])
+                pauli = sp.Pauli(
+                    z_set=[self.map[ad(crd, dx)]
+                    for dx in SHIFTS[shft_tag]])
                 z_stabs[self.map[crd]] = pauli
         
         return {'X' : x_stabs, 'Z' : z_stabs}
@@ -123,6 +124,12 @@ class SCLayout(object):
         Returns a set of fictional points that you can use to turn a 
         boundary distance finding problem into a pairwise distance 
         finding problem, with the typical IID XZ 2D scenario.
+
+        This function is rendered more-or-less obsolete by the 'missing
+        tiles' method that comes from Bombin 2007. I don't call it 
+        anywhere, and neither should you.
+
+        TODO FIXME
         """
         d = self.d
         z_top = tuple([(x, 2 * d) for x in range(4, 2 * d, 4)])

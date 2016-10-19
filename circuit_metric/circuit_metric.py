@@ -14,6 +14,7 @@ import vapory as vp
 
 from sys import version_info
 if version_info[0] == 3:
+    #from . import SCLayoutClass as sc
     from . import SCLayoutClass as sc
 elif version_info[0] == 2:
     import SCLayoutClass as sc
@@ -95,7 +96,8 @@ def prob_odd_events(prob_set, order=1):
     return sum(r_event_prob(prob_set, r) for r in rs)
 
 
-def dict_to_metric(pair_p_dict, order=1, wt_bits=None, fmt=None):
+def dict_to_metric(pair_p_dict, order=1, weight='neg_log_odds',
+                    wt_bits=None, fmt=None):
     """
     The output of the error propagation and combinatronics is a
     dictionary whose keys are syndrome pairs and whose values are 
@@ -116,6 +118,13 @@ def dict_to_metric(pair_p_dict, order=1, wt_bits=None, fmt=None):
     Optional arguments are included in the signature as a reminder, 
     but these features are not yet implemented.
     """
+    
+    weight = weight.lower()
+    wt_lst = ['fowler', 'neg_log_odds', 'prob']
+    if weight not in wt_lst:
+        raise NotImplementedError("weight must be one of "
+            "{}, {} entered.".format(wt_lst, weight))
+    
     # TODO: Implement rounded edge weights and remove this Exception.
     if wt_bits is not None:
         raise NotImplementedError("Rounding edge weights to integers"
@@ -129,13 +138,18 @@ def dict_to_metric(pair_p_dict, order=1, wt_bits=None, fmt=None):
     
     # decide whether to use numeric or symbolic log
     vals = uniques(pair_p_dict.values())
-    if any([isinstance(val, sp.Symbol) for val in vals]):
-        log = sp.log
-    else:
-        log = np.log
+    log = appropriate_log(vals)
 
-    pair_p_dict = {key: -log(prob_odd_events(val, order=order))
-                    for key, val in pair_p_dict.items()}
+    #decide based on what's requested whether to give probabilities, 
+    #Fowler -log(p) weights, or DKLP -log( p / ( 1 - p ) ) weights. 
+    if weight == 'prob':
+        val_f = lambda val: prob_odd_events(val, order=order)
+    elif weight == 'fowler':
+        val_f = lambda val: -log(prob_odd_events(val, order=order))
+    elif weight == 'neg_log_odds':
+        val_f = lambda val: neg_log_odds(val, order=order)
+
+    pair_p_dict = {key: val_f(val) for key, val in pair_p_dict.items()}
 
     vertices = uniques(pair_p_dict.keys())
     edges, weights = map(list, zip(*pair_p_dict.items()))
@@ -150,6 +164,17 @@ def dict_to_metric(pair_p_dict, order=1, wt_bits=None, fmt=None):
             edges[edge_dx] = (edge[0], new_vertex)
 
     return vertices, edges, weights
+
+def metric_to_matrix(vertices, edges, weights):
+    
+    n = len(vertices)
+    mat_out = np.zeros((n, n), dtype=np.float64)
+    
+    for tpl in it.product(sorted(vertices), repeat=2):
+        pass
+
+    pass
+
 #---------------------------------------------------------------------#
 
 #------------------------circuit manipulation-------------------------#
@@ -438,6 +463,18 @@ def metric_to_nx(vertices, edges, weights):
 
 v_shft = lambda v, t: v[:-1] + (v[-1] + t,)
 v_shft.__doc__ = "Shifts the last co-ordinate of a tuple v by t." 
+
+def neg_log_odds(p_set, order):
+    p_odd = prob_odd_events(p_set, order=order)
+    log = appropriate_log(p_set)
+    return -log( p_odd / ( 1. - p_odd ))
+
+def appropriate_log(vals):
+    if any([isinstance(val, sp.Symbol) for val in vals]):
+        return sp.log
+    else:
+        return np.log
+
 #---------------------------------------------------------------------#
 
 #------------------------user-level functions-------------------------#
