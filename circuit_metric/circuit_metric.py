@@ -27,7 +27,7 @@ __all__ = [
             "prop_circ", "synd_set", "synds_to_changes", "syndromes",
             "model_to_pairs", "css_pairs", "fault_probs", "nq",
             "quantify", "metric_to_nx", "css_metrics", "stack_metrics",
-            "weighted_event_graph", "metric_to_matrix"
+            "weighted_event_graph", "metric_to_matrix", "neg_log_odds"
         ]
 
 #-----------------------------constants-------------------------------#
@@ -479,10 +479,27 @@ def appropriate_log(vals):
     else:
         return np.log
 
+def fancy_weights(prob_mat):
+    """
+    From Tom O'Brien:
+    If you want to evaluate the probability of getting from vertex A to
+    vertex B with a weird SAW, you can sum powers of a weighted
+    adjacency matrix for the vertices. 
+    If you take the limit as step length goes to infinity, this sum
+    converges to: 
+    -(P - I)^{-1} - I
+    as long as |P| < 1. 
+    Since all weights p are 0 < p < 1, we're probably good. 
+    """
+    nlo = np.vectorize(lambda p: -np.log( p / (1. - p) ))
+    idnt = np.identity(prob_mat.shape)
+    return nlo(-np.linalg.inv(test_mat - idnt) - idnt)
+
+
 #---------------------------------------------------------------------#
 
 #------------------------user-level functions-------------------------#
-def css_metrics(model, circ, layout):
+def css_metrics(model, circ, layout, weight='neg_log_odds'):
     """
     Just a little something to make generating MWPM metrics a little 
     easier. 
@@ -490,7 +507,8 @@ def css_metrics(model, circ, layout):
     """
     pairs = model_to_pairs(model, circ, layout)
     x_dict, z_dict = map(lambda _: css_pairs(pairs, layout, _), 'xz')
-    x_metric, z_metric = map(dict_to_metric, [x_dict, z_dict])
+    x_metric = dict_to_metric(x_dict, weight=weight)
+    z_metric = dict_to_metric(z_dict, weight=weight)
     return x_metric, z_metric
 
 
