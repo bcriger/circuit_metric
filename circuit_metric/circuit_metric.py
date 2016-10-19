@@ -27,7 +27,7 @@ __all__ = [
             "prop_circ", "synd_set", "synds_to_changes", "syndromes",
             "model_to_pairs", "css_pairs", "fault_probs", "nq",
             "quantify", "metric_to_nx", "css_metrics", "stack_metrics",
-            "weighted_event_graph"
+            "weighted_event_graph", "metric_to_matrix"
         ]
 
 #-----------------------------constants-------------------------------#
@@ -170,10 +170,14 @@ def metric_to_matrix(vertices, edges, weights):
     n = len(vertices)
     mat_out = np.zeros((n, n), dtype=np.float64)
     
-    for tpl in it.product(sorted(vertices), repeat=2):
-        pass
-
-    pass
+    vs = sorted(vertices)
+    for e, w in zip(edges, weights):
+        r, c = map(vs.index, e)
+        #suspect that matrix should be symmetric
+        mat_out[r, c] = w
+        mat_out[c, r] = w
+    
+    return mat_out
 
 #---------------------------------------------------------------------#
 
