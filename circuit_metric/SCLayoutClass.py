@@ -15,6 +15,18 @@ SHIFTS['A'] = SHIFTS['E'] + SHIFTS['W']
 SHIFTS_README = """(dx, dy) so that, given an ancilla co-ordinate
                    (x, y), there will be data qubits at
                    (x + dx, y + dy)."""
+LOCS_README = """dict of whitelists for location types, including
+                 single/two-qubit gates, X/Z preparations,
+                 and X/Z measurements, with other special gates 
+                 in for good measure"""
+LOCS = dict()
+LOCS['SINGLE_GATES'] = ['I', 'H', 'P',
+                        'X90', 'Y90', 'Z90',
+                        'X', 'Y', 'Z',
+                        'X180', 'Y180', 'Z180']
+LOCS['DOUBLE_GATES'] = ['CNOT', 'CPHASE', 'ZZ90', 'SWAP']
+LOCS['PREPARATIONS'] = ['P_X, P_Z']
+LOCS['MEASUREMENTS'] = ['M_X, M_Z']
 #---------------------------------------------------------------------#
 
 
