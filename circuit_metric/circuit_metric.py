@@ -4,7 +4,7 @@ from __future__ import division
 
 import sympy as sp
 import itertools as it
-from operator import mul, add
+from operator import mul, add, xor as sym_diff
 import numpy as np
 import qecc as q
 from qecc import Location
@@ -14,7 +14,6 @@ import vapory as vp
 
 from sys import version_info
 if version_info[0] == 3:
-    #from . import SCLayoutClass as sc
     from . import SCLayoutClass as sc
 elif version_info[0] == 2:
     import SCLayoutClass as sc
@@ -27,7 +26,8 @@ __all__ = [
             "prop_circ", "synd_set", "synds_to_changes", "syndromes",
             "model_to_pairs", "css_pairs", "fault_probs", "nq",
             "quantify", "metric_to_nx", "css_metrics", "stack_metrics",
-            "weighted_event_graph", "metric_to_matrix", "neg_log_odds"
+            "weighted_event_graph", "metric_to_matrix", "neg_log_odds",
+            "apply_step"
         ]
 
 #-----------------------------constants-------------------------------#
@@ -495,6 +495,45 @@ def fancy_weights(prob_mat):
     idnt = np.identity(prob_mat.shape)
     return nlo(-np.linalg.inv(test_mat - idnt) - idnt)
 
+def apply_step(step, pauli):
+    """
+    Silently applies a list of gates 'timestep' to a sparse_pauli.Pauli
+    'pauli' (pauli).
+    step is meant to be an iterable of gates of the form
+    ('name', qubit0, qubit1(optional)), where name can be one of:
+    I, P_X, P_Z, M_X, M_Z, CNOT
+    This is meant to expand as we change gatesets to Y90/CPHASE.
+    """
+    #FIXME assumes correct input
+    qubits = set(sum([tpl[1:] for tpl in step], []))
+    ids, x_ps, x_ms, z_ps, z_ms = [
+        [tpl[1] for tpl in step if tpl[0] == name]
+        for name in ['I', 'P_X', 'M_X', 'P_Z', 'M_Z']
+        ]
+    cnots = [tpl[1:] for tpl in step if tpl[0] == 'CNOT']
+    # check if sets don't overlap by taking difference between sym_diff
+    # and union
+    cnot_qs = sum(cnots, ())
+
+    #lazy check, doesn't work if three gates are on the same qubit. 
+    #FIXME
+    test_qs = reduce(sym_diff,
+                map(set,
+                    [ids, x_ps, z_ps, x_ms, z_ms, cnot_qs]
+                    )
+                )
+    
+    if test_qs != qubits:
+        raise ValueError("qubit sets must not intersect.")
+
+    #method-based implementation of gates kind of sucks. 
+    pauli.cnot(cnots)
+    pauli.prep(x_ps + z_ps)
+    #these can always be in the wrong order
+    z_synds = pauli.meas(z_ms, basis='Z')
+    x_synds = pauli.meas(x_ms, basis='X')
+    
+    return {'x': x_synds, 'z': z_synds}
 
 #---------------------------------------------------------------------#
 
