@@ -34,6 +34,9 @@ class SCLayout(object):
     """
     wraps a bunch of lists of 2d co-ordinates that I use for producing
     surface code circuits.
+
+    Ancilla-symmetry is broken by the convention that there is a 
+    weight-2 XX stabiliser at the top left. 
     """
     def __init__(self, d):
         
@@ -131,24 +134,20 @@ class SCLayout(object):
                     ]
         return [sp.Pauli(x_set, []), sp.Pauli([], z_set)]
 
-    def boundary_points(self, anc_type):
+    def boundary_points(self, log_type):
         """
         Returns a set of fictional points that you can use to turn a 
         boundary distance finding problem into a pairwise distance 
         finding problem, with the typical IID XZ 2D scenario.
-
-        This function is rendered more-or-less obsolete by the 'missing
-        tiles' method that comes from Bombin 2007. I don't call it 
-        anywhere, and neither should you.
-
-        TODO FIXME
+        logicals of the type 'log_type' have to traverse between pairs
+        of output boundary points 
         """
         d = self.d
-        z_top = tuple([(x, 2 * d) for x in range(4, 2 * d, 4)])
-        x_right = tuple([(2 * d, y) for y in range(2, 2 * d, 4)])
-        x_left = tuple([(0, y) for y in range(2 * d - 2, 0, -4)])
-        z_bot = tuple([(x, 0) for x in range(2 * d - 4, 0, -4)])
-        return z_top + z_bot if anc_type == 'Z' else x_right + x_left
+        x_top = tuple([(x, 2 * d) for x in range(0, 2 * d, 4)])
+        z_right = tuple([(2 * d, y) for y in range(2, 2 * d + 1, 4)])
+        z_left = tuple([(0, y) for y in range(2 * d - 2, -1, -4)])
+        x_bot = tuple([(x, 0) for x in range(2 * d, 0, -4)])
+        return x_top + x_bot if log_type == 'X' else z_right + z_left
 
     def extractor(self):
         """
