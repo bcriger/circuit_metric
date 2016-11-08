@@ -4,7 +4,11 @@ from __future__ import division
 
 import sympy as sp
 import itertools as it
-from operator import mul, add, xor as sym_diff
+# commentary: When I want to map and reduce using functions that are
+# associated with overloaded operators, I import them from operator
+# with names that seem weird a priori. Is there a way to make this 
+# clear and concise? 
+from operator import mul, add, xor as sym_diff, or_ as union
 import numpy as np
 import qecc as q
 from qecc import Location
@@ -505,7 +509,7 @@ def apply_step(step, pauli):
     This is meant to expand as we change gatesets to Y90/CPHASE.
     """
     #FIXME assumes correct input
-    qubits = set(sum([tpl[1:] for tpl in step], []))
+    qubits = reduce(union, map(set, [tpl[1:] for tpl in step]))
     ids, x_ps, x_ms, z_ps, z_ms = [
         [tpl[1] for tpl in step if tpl[0] == name]
         for name in ['I', 'P_X', 'M_X', 'P_Z', 'M_Z']
