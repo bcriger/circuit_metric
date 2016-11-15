@@ -199,6 +199,29 @@ class SCLayout(object):
     def z_cnot(self, shft, lst): 
         return [('CNOT', self.map[ad(q, shft)], self.map[q]) for q in lst]
 
+    def path_pauli(self, crd_0, crd_1, err_type):
+        """
+        Returns a minimum-length Pauli between two ancillas, given the
+        type of error that joins the two.
+
+        This function is awkward, because it works implicitly on the
+        un-rotated surface code, first finding a "corner" (a place on
+        the lattice for the path to turn 90 degrees), then producing
+        two diagonal paths on the rotated lattice that go to and from
+        this corner. 
+        """
+        
+        mid_v = diag_intersection(crd_0, crd_1, self.ancillas.values())
+        
+        pth_0, pth_1 = diag_pth(crd_0, mid_v), diag_pth(mid_v, crd_1)
+
+        #path on lattice, uses idxs
+        p = [self.map[crd] for crd in pth_0 + pth_1]
+        
+        pl = sp.Pauli(p, []) if err_type == 'X' else sp.Pauli([], p)
+        
+        return pl
+
 # -----------------------convenience functions-------------------------#
 ad = lambda tpl_0, tpl_1: tuple(a + b for a, b, in zip(tpl_0, tpl_1))
 
@@ -208,6 +231,40 @@ def support(timestep):
     for elem in timestep:
         output += elem[1:]
     return set(output)
+
+def diag_pth(crd_0, crd_1):
+    """
+    Produces a path between two points which takes steps (\pm 2, \pm 2)
+    between the two, starting (\pm 1, \pm 1) away from the first.
+    """
+    dx, dy = crd_1[0] - crd_0[0], crd_1[1] - crd_0[1]
+    shft_x, shft_y = map(int, [copysign(1, dx), copysign(1, dy)])
+    step_x, step_y = map(int, [copysign(2, dx), copysign(2, dy)])
+    return zip(range(crd_0[0] + shft_x, crd_1[0], step_x), 
+                range(crd_0[1] + shft_y, crd_1[1], step_y))
+
+def diag_intersection(crd_0, crd_1, ancs=None):
+    """
+    Uses a little linear algebra to determine where diagonal paths that
+    step outward from ancilla qubits intersect.
+    This allows us to reduce the problems of length-finding and
+    path-making to a pair of 1D problems. 
+    """
+    a, b, c, d = crd_0[0], crd_0[1], crd_1[0], crd_1[1]
+    vs = [
+            ( ( d + c - b + a ) / 2, ( d + c + b - a ) / 2 ),
+            ( ( d - c - b - a ) / -2, ( -d + c - b - a ) / -2 )
+        ]
+    
+    if ancs:
+        if vs[0] in sum(ancs, ()):
+            mid_v = vs[0]
+        else:
+            mid_v = vs[1]
+    else:
+        mid_v = vs[0]
+
+    return mid_v
 
 # ---------------------------------------------------------------------#
 
