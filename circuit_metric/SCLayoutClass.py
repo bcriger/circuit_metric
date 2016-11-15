@@ -65,6 +65,7 @@ class SCLayout(object):
 
         self.map = bd.bidict(zip(sorted(bits), range(len(bits))))
         self.d = d
+        self.n = 2 * d**2 - 1
 
     # @property
     def x_ancs(self, dx=None):
