@@ -537,7 +537,7 @@ def apply_step(step, pauli):
     z_synds = pauli.meas(z_ms, basis='Z')
     x_synds = pauli.meas(x_ms, basis='X')
     
-    return {'x': x_synds, 'z': z_synds}
+    return ({'X': x_synds, 'Z': z_synds}, pauli)
 
 #---------------------------------------------------------------------#
 

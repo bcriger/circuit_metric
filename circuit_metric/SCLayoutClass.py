@@ -25,8 +25,8 @@ LOCS['SINGLE_GATES'] = ['I', 'H', 'P',
                         'X', 'Y', 'Z',
                         'X180', 'Y180', 'Z180']
 LOCS['DOUBLE_GATES'] = ['CNOT', 'CPHASE', 'ZZ90', 'SWAP']
-LOCS['PREPARATIONS'] = ['P_X, P_Z']
-LOCS['MEASUREMENTS'] = ['M_X, M_Z']
+LOCS['PREPARATIONS'] = ['P_X', 'P_Z']
+LOCS['MEASUREMENTS'] = ['M_X', 'M_Z']
 #---------------------------------------------------------------------#
 
 
