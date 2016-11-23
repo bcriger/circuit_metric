@@ -101,7 +101,7 @@ class SCLayout(object):
         for x,y in self.ancillas['x_top'] + self.ancillas['x_bot'] + self.ancillas['x_sq']:
             self.crd2name[(x,y)] = "X" + str( self.map[ (x,y) ] ).zfill(3)
             self.xList.append(self.crd2name[(x,y)])
-            #print x, " ", y, " ", self.crd2name[(x,y)]
+            #print(x, " ", y, " ", self.crd2name[(x,y)])
 
         for x,y in self.ancillas['z_left'] + self.ancillas['z_right'] + self.ancillas['z_sq']:
             self.crd2name[(x,y)] = "Z" + str( self.map[ (x,y) ] ).zfill(3)
@@ -155,18 +155,18 @@ class SCLayout(object):
 
 #=========================================================
     def Print(self):
-        print "Printing SCLayout"
+        print("Printing SCLayout")
 
         for y in reversed( range(self.ydim) ):
             for x in (range(self.xdim)):
-                print self.crd2name[(x,y)],
-            print
-            print
-        print
+                print(self.crd2name[(x,y)],)
+            print()
+            print()
+        print()
 
 #=========================================================
     def Draw(self):
-        print "Drawing SCLayout"
+        print("Drawing SCLayout")
 
         nx.draw_networkx_nodes(self.graph, self.pos, nodelist=self.dList , node_color='green', node_size=1000)
         nx.draw_networkx_nodes(self.graph, self.pos, nodelist=self.xList , node_color='red', node_size=1000)
@@ -186,7 +186,7 @@ class SCLayout(object):
 
 #=========================================================
     def DrawSyndromes(self, xSyndNodes , zSyndNodes):
-        print "Drawing SCLayout with syndromes"
+        print("Drawing SCLayout with syndromes")
 
         xcrdlist = [ self.map.inv[s] for s in xSyndNodes if s in self.map.inv ]
         xslist = [ self.crd2name[crd] for crd in xcrdlist ]
