@@ -5,10 +5,11 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 from operator import add
-import sparse_pauli as sp 
+import sparse_pauli as sp
 
 from sys import version_info
-if version_info.major == 3:
+PVER = version_info[0]
+if PVER == 3:
     from functools import reduce
 
 #------------------------------constants------------------------------#
@@ -24,7 +25,7 @@ SHIFTS_README = """(dx, dy) so that, given an ancilla co-ordinate
                    (x + dx, y + dy)."""
 LOCS_README = """dict of whitelists for location types, including
                  single/two-qubit gates, X/Z preparations,
-                 and X/Z measurements, with other special gates 
+                 and X/Z measurements, with other special gates
                  in for good measure"""
 LOCS = dict()
 LOCS['SINGLE_GATES'] = ['I', 'H', 'P',
@@ -42,13 +43,13 @@ class SCLayout(object):
     wraps a bunch of lists of 2d co-ordinates that I use for producing
     surface code circuits.
 
-    Ancilla-symmetry is broken by the convention that there is a 
-    weight-2 XX stabiliser at the top left. 
+    Ancilla-symmetry is broken by the convention that there is a
+    weight-2 XX stabiliser at the top left.
     """
     def __init__(self, dx, dy=None):
 
         dy = dx if dy is None else dy
-    
+
         self.datas = list(it.product ( range(1, 2 * dx, 2), range(1, 2 * dy, 2)))
 
         anc = {'x_sq': (), 'z_sq': (), 'x_top': (), 'x_bot': (), 'z_left': (), 'z_right': ()}
@@ -127,7 +128,12 @@ class SCLayout(object):
             #self.crd2name[(x,y)] = "BZ" + str( self.map[ (x-2,y+2) ] ).zfill(2)
             #self.zBndryList.append(self.crd2name[(x,y)])
 
-        self.name2crd = {v: k for k, v in self.crd2name.iteritems()}
+        if PVER is 2:
+            self.name2crd = {v: k for k, v in self.crd2name.iteritems()}
+        elif PVER is 3:
+            self.name2crd = {v: k for k, v in self.crd2name.items()}
+        else:
+            print("Python version error")
 
         g = nx.Graph()
         self.pos = self.name2crd
@@ -246,14 +252,14 @@ class SCLayout(object):
     def stabilisers(self):
         """
         Sometimes it's convenient to have the stabilisers of a surface
-        code, especially when doing a 2d example. 
+        code, especially when doing a 2d example.
         """
         x_stabs, z_stabs = {}, {}
 
         #TODO: Fix Copypasta, PEP8 me.
 
         for crd_tag, shft_tag in zip(['x_sq', 'x_top', 'x_bot'],
-                                     ['A',    'S',     'N'    ]): 
+                                     ['A',    'S',     'N'    ]):
             for crd in self.ancillas[crd_tag]:
                 pauli = sp.Pauli(
                     x_set=[self.map[ad(crd, dx)]
@@ -261,7 +267,7 @@ class SCLayout(object):
                 x_stabs[self.map[crd]] = pauli
 
         for crd_tag, shft_tag in zip(['z_sq', 'z_left', 'z_right'],
-                                     ['A',    'E',      'W'    ]): 
+                                     ['A',    'E',      'W'    ]):
             for crd in self.ancillas[crd_tag]:
                 pauli = sp.Pauli(
                     z_set=[self.map[ad(crd, dx)]
@@ -272,12 +278,12 @@ class SCLayout(object):
 
     def logicals(self):
         x_set = [
-                    self.map[_] 
-                    for _ in 
+                    self.map[_]
+                    for _ in
                     filter(lambda pr: pr[0] == 1, self.datas)
                     ]
         z_set = [
-                    self.map[_] 
+                    self.map[_]
                     for _ in
                     filter(lambda pr: pr[1] == 1, self.datas)
                     ]
@@ -285,11 +291,11 @@ class SCLayout(object):
 
     def boundary_points(self, log_type):
         """
-        Returns a set of fictional points that you can use to turn a 
-        boundary distance finding problem into a pairwise distance 
+        Returns a set of fictional points that you can use to turn a
+        boundary distance finding problem into a pairwise distance
         finding problem, with the typical IID XZ 2D scenario.
         logicals of the type 'log_type' have to traverse between pairs
-        of output boundary points 
+        of output boundary points
         """
         dx = self.dx
         dy = self.dy
@@ -305,9 +311,9 @@ class SCLayout(object):
         + Preparation at the right time (ancilla qubits are prepared
           immediately before their first CNOT gate)
         + Four CNOT timesteps in line with Tomita/Svore
-        + Measurement at the right time (syndrome qubits are measured 
+        + Measurement at the right time (syndrome qubits are measured
           immediately after their last CNOT)
-        """       
+        """
         # Tomita/Svore six-step circuit
         t_0 = self.op_set_1('P_X', self.x_ancs(0))
         t_0 += self.op_set_1('P_Z', self.z_ancs(0))
@@ -342,10 +348,10 @@ class SCLayout(object):
     def op_set_1(self, name, qs):
         return [(name, self.map[q]) for q in qs]
 
-    def x_cnot(self, shft, lst): 
+    def x_cnot(self, shft, lst):
         return [('CNOT', self.map[q], self.map[ad(q, shft)]) for q in lst]
 
-    def z_cnot(self, shft, lst): 
+    def z_cnot(self, shft, lst):
         return [('CNOT', self.map[ad(q, shft)], self.map[q]) for q in lst]
 
     def path_pauli(self, crd_0, crd_1, err_type):
@@ -357,7 +363,7 @@ class SCLayout(object):
         un-rotated surface code, first finding a "corner" (a place on
         the lattice for the path to turn 90 degrees), then producing
         two diagonal paths on the rotated lattice that go to and from
-        this corner. 
+        this corner.
         """
 
         mid_v = diag_intersection(crd_0, crd_1, self.ancillas.values())
@@ -389,7 +395,7 @@ def diag_pth(crd_0, crd_1):
     dx, dy = crd_1[0] - crd_0[0], crd_1[1] - crd_0[1]
     shft_x, shft_y = map(int, [copysign(1, dx), copysign(1, dy)])
     step_x, step_y = map(int, [copysign(2, dx), copysign(2, dy)])
-    return zip(range(crd_0[0] + shft_x, crd_1[0], step_x), 
+    return zip(range(crd_0[0] + shft_x, crd_1[0], step_x),
                 range(crd_0[1] + shft_y, crd_1[1], step_y))
 
 def diag_intersection(crd_0, crd_1, ancs=None):
@@ -397,7 +403,7 @@ def diag_intersection(crd_0, crd_1, ancs=None):
     Uses a little linear algebra to determine where diagonal paths that
     step outward from ancilla qubits intersect.
     This allows us to reduce the problems of length-finding and
-    path-making to a pair of 1D problems. 
+    path-making to a pair of 1D problems.
     """
     a, b, c, d = crd_0[0], crd_0[1], crd_1[0], crd_1[1]
     vs = [
