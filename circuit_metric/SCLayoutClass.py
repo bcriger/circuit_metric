@@ -4,6 +4,9 @@ from math import copysign
 from operator import add
 import sparse_pauli as sp 
 
+from sys import version_info
+if version_info.major == 3:
+    from functools import reduce
 
 #------------------------------constants------------------------------#
 SHIFTS = {
