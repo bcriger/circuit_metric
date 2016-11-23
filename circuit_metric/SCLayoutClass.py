@@ -1,9 +1,11 @@
 import bidict as bd
 import itertools as it
 from math import copysign
+import matplotlib.pyplot as plt
+import networkx as nx
+import numpy as np
 from operator import add
 import sparse_pauli as sp 
-
 
 #------------------------------constants------------------------------#
 SHIFTS = {
@@ -39,35 +41,176 @@ class SCLayout(object):
     Ancilla-symmetry is broken by the convention that there is a 
     weight-2 XX stabiliser at the top left. 
     """
-    def __init__(self, d):
-        
-        self.datas = list(it.product(range(1, 2 * d, 2), repeat=2))
+    def __init__(self, dx, dy=None):
+
+        dy = dx if dy is None else dy
+    
+        self.datas = list(it.product ( range(1, 2 * dx, 2), range(1, 2 * dy, 2)))
 
         anc = {'x_sq': (), 'z_sq': (), 'x_top': (), 'x_bot': (), 'z_left': (), 'z_right': ()}
 
-        anc['x_top'] = tuple([(x, 2 * d) for x in range(2, 2 * d, 4)])
-        anc['z_right'] = tuple([(2 * d, y) for y in range(4, 2 * d, 4)])
-        anc['z_left'] = tuple([(0, y) for y in range(2 * d - 4, 0, -4)])
-        anc['x_bot'] = tuple([(x, 0) for x in range(2 * d - 2, 0, -4)])
-        x_sq_anc = tuple(it.product(range(4, 2 * d, 4),
-                                    range(2 * d - 2, 0, -4)))
-        x_sq_anc += tuple(it.product(range(2, 2 * d, 4), 
-                                     range(2 * d - 4, 0, -4)))
+        anc['x_top'] = tuple([(x, 2 * dy) for x in range(2, 2 * dx, 4)])
+        anc['z_right'] = tuple([(2 * dx, y) for y in range(4, 2 * dy, 4)])
+        anc['z_left'] = tuple([(0, y) for y in range(2 * dy - 4, 0, -4)])
+        anc['x_bot'] = tuple([(x, 0) for x in range(2 * dx - 2, 0, -4)])
+        x_sq_anc = tuple(it.product(range(4, 2 * dx, 4), range(2 * dy - 2, 0, -4)))
+        x_sq_anc += tuple(it.product(range(2, 2 * dx, 4), range(2 * dy - 4, 0, -4)))
         anc['x_sq'] = x_sq_anc
 
-        z_sq_anc = tuple(it.product(range(2, 2 * d, 4), 
-                                    range(2 * d - 2, 0, -4)))
-        z_sq_anc += tuple(it.product(range(4, 2 * d, 4), 
-                                     range(2 * d - 4, 0, -4)))
+        z_sq_anc = tuple(it.product(range(2, 2 * dx, 4), range(2 * dy - 2, 0, -4)))
+        z_sq_anc += tuple(it.product(range(4, 2 * dx, 4), range(2 * dy - 4, 0, -4)))
         anc['z_sq'] = z_sq_anc
+
         self.ancillas = anc
-        
+
         bits = self.datas + list(it.chain.from_iterable(anc.values()))
 
         self.map = bd.bidict(zip(sorted(bits), range(len(bits))))
-        self.d = d
-        self.n = 2 * d**2 - 1
+        self.dx = dx
+        self.dy = dy
+        self.n = 2 * dx*dy - 1
 
+        #############################################################
+        boundary = {'z_top': (), 'z_bot': (), 'x_left': (), 'x_right': ()}
+        boundary['z_top'] = tuple([(x, 2 * dy) for x in range(0, 2 * dx, 4)])
+        boundary['x_right'] = tuple([(2 * dx, y) for y in range(2, 2 * dy + 1, 4)])
+        boundary['x_left'] = tuple([(0, y) for y in range(2 * dy - 2, -1, -4)])
+        boundary['z_bot'] = tuple([(x, 0) for x in range(2 * dx, 0, -4)])
+        self.boundary = boundary
+
+        self.xdim = 2*self.dx+1
+        self.ydim = 2*self.dy+1
+
+        coordList = list(it.product(range(self.xdim), range(self.ydim)))
+        self.crd2name = { (x,y): "N"+str(x)+str(y) for (x,y) in coordList}
+
+        self.dList = []
+        self.xList = []
+        self.zList = []
+        self.zBndryList = []
+        self.xBndryList = []
+
+        for x,y in self.datas:
+            self.crd2name[(x,y)] = "D" + str( self.map[ (x,y) ] ).zfill(3)
+            self.dList.append(self.crd2name[(x,y)])
+
+        for x,y in self.ancillas['x_top'] + self.ancillas['x_bot'] + self.ancillas['x_sq']:
+            self.crd2name[(x,y)] = "X" + str( self.map[ (x,y) ] ).zfill(3)
+            self.xList.append(self.crd2name[(x,y)])
+            #print x, " ", y, " ", self.crd2name[(x,y)]
+
+        for x,y in self.ancillas['z_left'] + self.ancillas['z_right'] + self.ancillas['z_sq']:
+            self.crd2name[(x,y)] = "Z" + str( self.map[ (x,y) ] ).zfill(3)
+            self.zList.append(self.crd2name[(x,y)])
+
+        ## upper boundary points
+        #for x,y in self.boundary['z_top']:
+            #self.crd2name[(x,y)] = "BZ" + str( self.map[ (x+2,y-2) ] ).zfill(2)
+            #self.zBndryList.append(self.crd2name[(x,y)])
+
+        ## right boundary points
+        #for x,y in self.boundary['x_right']:
+            #self.crd2name[(x,y)] = "BX" + str( self.map[ (x-2,y-2) ] ).zfill(2)
+            #self.xBndryList.append(self.crd2name[(x,y)])
+
+        ## left boundary points
+        #for x,y in self.boundary['x_left']:
+            #self.crd2name[(x,y)] = "BX" + str( self.map[ (x+2,y+2) ] ).zfill(2)
+            #self.xBndryList.append(self.crd2name[(x,y)])
+
+        ## lower boundary points
+        #for x,y in self.boundary['z_bot']:
+            #self.crd2name[(x,y)] = "BZ" + str( self.map[ (x-2,y+2) ] ).zfill(2)
+            #self.zBndryList.append(self.crd2name[(x,y)])
+
+        self.name2crd = {v: k for k, v in self.crd2name.iteritems()}
+
+        g = nx.Graph()
+        self.pos = self.name2crd
+
+        # Add Nodes
+        g.add_nodes_from( self.crd2name.values() )
+
+        # Add Edges
+        for x,y in self.datas:
+            n1 = self.crd2name[(x,y)]
+            if (x+1, y+1) in self.map:
+                n2 = self.crd2name[(x+1,y+1)]
+                g.add_edge( n1, n2 )
+            if (x+1, y-1) in self.map:
+                n2 = self.crd2name[(x+1,y-1)]
+                g.add_edge( n1, n2 )
+            if (x-1, y+1) in self.map:
+                n2 = self.crd2name[(x-1,y+1)]
+                g.add_edge( n1, n2 )
+            if (x-1, y-1) in self.map:
+                n2 = self.crd2name[(x-1,y-1)]
+                g.add_edge( n1, n2 )
+
+        self.graph = g
+
+#=========================================================
+    def Print(self):
+        print "Printing SCLayout"
+
+        for y in reversed( range(self.ydim) ):
+            for x in (range(self.xdim)):
+                print self.crd2name[(x,y)],
+            print
+            print
+        print
+
+#=========================================================
+    def Draw(self):
+        print "Drawing SCLayout"
+
+        nx.draw_networkx_nodes(self.graph, self.pos, nodelist=self.dList , node_color='green', node_size=1000)
+        nx.draw_networkx_nodes(self.graph, self.pos, nodelist=self.xList , node_color='red', node_size=1000)
+        nx.draw_networkx_nodes(self.graph, self.pos, nodelist=self.zList , node_color='blue', node_size=1000)
+        nx.draw_networkx_nodes(self.graph, self.pos, nodelist=self.zBndryList , node_color='blue', alpha=0.15, node_size=1000)
+        nx.draw_networkx_nodes(self.graph, self.pos, nodelist=self.xBndryList , node_color='red', alpha=0.15, node_size=1000)
+        nx.draw_networkx_labels(self.graph, self.pos, font_size=10, font_color='white')
+
+        nx.draw_networkx_edges(self.graph, self.pos, edge_color='black', arrows=False, style='dashed')
+
+        plt.title( str(self.dx) + "X" + str(self.dy) + " lattice layout")
+        plt.axis('on')
+        plt.axis('equal')
+        plt.grid('on')
+        #plt.savefig("graph.png")
+        plt.show()
+
+#=========================================================
+    def DrawSyndromes(self, xSyndNodes , zSyndNodes):
+        print "Drawing SCLayout with syndromes"
+
+        xcrdlist = [ self.map.inv[s] for s in xSyndNodes if s in self.map.inv ]
+        xslist = [ self.crd2name[crd] for crd in xcrdlist ]
+
+        zcrdlist = [ self.map.inv[s] for s in zSyndNodes if s in self.map.inv ]
+        zslist = [ self.crd2name[crd] for crd in zcrdlist ]
+
+        nx.draw_networkx_nodes(self.graph, self.pos, nodelist=self.dList , node_color='green', alpha=0.85, node_size=1000)
+        nx.draw_networkx_nodes(self.graph, self.pos, nodelist=self.xList , node_color='red', alpha=0.85, node_size=1000)
+        nx.draw_networkx_nodes(self.graph, self.pos, nodelist=self.zList , node_color='blue', alpha=0.85, node_size=1000)
+        #nx.draw_networkx_nodes(self.graph, self.pos, nodelist=self.zBndryList , node_color='blue', alpha=0.25, node_size=1000)
+        #nx.draw_networkx_nodes(self.graph, self.pos, nodelist=self.xBndryList , node_color='red', alpha=0.25, node_size=1000)
+
+        nx.draw_networkx_nodes(self.graph, self.pos, nodelist=xslist, node_color='red', alpha=0.95, node_shape='D', node_size=1000)
+        nx.draw_networkx_nodes(self.graph, self.pos, nodelist=zslist, node_color='blue', alpha=0.95,node_shape='D', node_size=1000)
+
+        nx.draw_networkx_labels(self.graph, self.pos, font_size=10, font_color='white')
+        nx.draw_networkx_edges(self.graph, self.pos, edge_color='black', arrows=False, style='dashed')
+
+        plt.title( str(self.dx) + "X" + str(self.dy) + " lattice layout with X and Z syndromes")
+        plt.axis('on')
+        plt.axis('equal')
+        plt.grid('on')
+        #plt.savefig("graph.png")
+        #plt.ion()
+        plt.show()
+
+#=========================================================
     # @property
     def x_ancs(self, dx=None):
         names = ['x_sq', 'x_top', 'x_bot']
@@ -76,7 +219,7 @@ class SCLayout(object):
         elif dx == 1:
             names.remove('x_bot')
         return reduce(add, [self.ancillas[key] for key in names])
-    
+
     # @property
     def z_ancs(self, dx=None):
         names = ['z_sq', 'z_left', 'z_right']
@@ -102,7 +245,7 @@ class SCLayout(object):
         code, especially when doing a 2d example. 
         """
         x_stabs, z_stabs = {}, {}
-        
+
         #TODO: Fix Copypasta, PEP8 me.
 
         for crd_tag, shft_tag in zip(['x_sq', 'x_top', 'x_bot'],
@@ -112,7 +255,7 @@ class SCLayout(object):
                     x_set=[self.map[ad(crd, dx)]
                     for dx in SHIFTS[shft_tag]])
                 x_stabs[self.map[crd]] = pauli
-        
+
         for crd_tag, shft_tag in zip(['z_sq', 'z_left', 'z_right'],
                                      ['A',    'E',      'W'    ]): 
             for crd in self.ancillas[crd_tag]:
@@ -120,9 +263,9 @@ class SCLayout(object):
                     z_set=[self.map[ad(crd, dx)]
                     for dx in SHIFTS[shft_tag]])
                 z_stabs[self.map[crd]] = pauli
-        
+
         return {'X' : x_stabs, 'Z' : z_stabs}
-    
+
     def logicals(self):
         x_set = [
                     self.map[_] 
@@ -144,11 +287,12 @@ class SCLayout(object):
         logicals of the type 'log_type' have to traverse between pairs
         of output boundary points 
         """
-        d = self.d
-        x_top = tuple([(x, 2 * d) for x in range(0, 2 * d, 4)])
-        z_right = tuple([(2 * d, y) for y in range(2, 2 * d + 1, 4)])
-        z_left = tuple([(0, y) for y in range(2 * d - 2, -1, -4)])
-        x_bot = tuple([(x, 0) for x in range(2 * d, 0, -4)])
+        dx = self.dx
+        dy = self.dy
+        x_top = tuple([(x, 2 * dy) for x in range(0, 2 * dx, 4)])
+        z_right = tuple([(2 * dx, y) for y in range(2, 2 * dy + 1, 4)])
+        z_left = tuple([(0, y) for y in range(2 * dy - 2, -1, -4)])
+        x_bot = tuple([(x, 0) for x in range(2 * dx, 0, -4)])
         return x_top + x_bot if log_type == 'X' else z_right + z_left
 
     def extractor(self):
@@ -166,24 +310,24 @@ class SCLayout(object):
 
         t_1 = self.x_cnot((1, 1), self.x_ancs(0))
         t_1 += self.z_cnot((1, 1), self.z_ancs(0))
-        
+
         t_2 = self.x_cnot((-1, 1), self.x_ancs(0))
         t_2 += self.z_cnot((1, -1), self.z_ancs(0))
         t_2 += self.op_set_1('P_X', self.ancillas['x_top'])
         t_2 += self.op_set_1('P_Z', self.ancillas['z_right'])
-        
+
         t_3 = self.x_cnot((1, -1), self.x_ancs(1))
         t_3 += self.z_cnot((-1, 1), self.z_ancs(1))
         t_3 += self.op_set_1('M_X', self.ancillas['x_bot'])
         t_3 += self.op_set_1('M_Z', self.ancillas['z_left'])
-        
+
         t_4 = self.x_cnot((-1, -1), self.x_ancs(1))
         t_4 += self.z_cnot((-1, -1), self.z_ancs(1))
-        
+
         t_5 = self.op_set_1('M_X', self.x_ancs(1))
         t_5 += self.op_set_1('M_Z', self.z_ancs(1))
         timesteps = [t_0, t_1, t_2, t_3, t_4, t_5]
-        
+
         # pad with waits, assuming destructive measurement
         dat_locs = {self.map[q] for q in self.datas}
         for step in timesteps:
@@ -211,16 +355,16 @@ class SCLayout(object):
         two diagonal paths on the rotated lattice that go to and from
         this corner. 
         """
-        
+
         mid_v = diag_intersection(crd_0, crd_1, self.ancillas.values())
-        
+
         pth_0, pth_1 = diag_pth(crd_0, mid_v), diag_pth(mid_v, crd_1)
 
         #path on lattice, uses idxs
         p = [self.map[crd] for crd in pth_0 + pth_1]
-        
+
         pl = sp.Pauli(p, []) if err_type == 'X' else sp.Pauli([], p)
-        
+
         return pl
 
 # -----------------------convenience functions-------------------------#
@@ -256,7 +400,7 @@ def diag_intersection(crd_0, crd_1, ancs=None):
             ( ( d + c - b + a ) / 2, ( d + c + b - a ) / 2 ),
             ( ( d - c - b - a ) / -2, ( -d + c - b - a ) / -2 )
         ]
-    
+
     if ancs:
         if vs[0] in sum(ancs, ()):
             mid_v = vs[0]
