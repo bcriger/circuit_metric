@@ -371,7 +371,7 @@ class SCLayout(object):
         pth_0, pth_1 = diag_pth(crd_0, mid_v), diag_pth(mid_v, crd_1)
 
         #path on lattice, uses idxs
-        p = [self.map[crd] for crd in pth_0 + pth_1]
+        p = [self.map[crd] for crd in list(pth_0) + list(pth_1)]
 
         pl = sp.Pauli(p, []) if err_type == 'X' else sp.Pauli([], p)
 
@@ -407,8 +407,8 @@ def diag_intersection(crd_0, crd_1, ancs=None):
     """
     a, b, c, d = crd_0[0], crd_0[1], crd_1[0], crd_1[1]
     vs = [
-            ( ( d + c - b + a ) / 2, ( d + c + b - a ) / 2 ),
-            ( ( d - c - b - a ) / -2, ( -d + c - b - a ) / -2 )
+            ( int(( d + c - b + a ) / 2), int(( d + c + b - a ) / 2) ),
+            ( int(( d - c - b - a ) / -2), int(( -d + c - b - a ) / -2) )
         ]
 
     if ancs:

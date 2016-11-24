@@ -19,6 +19,7 @@ import vapory as vp
 from sys import version_info
 if version_info[0] == 3:
     from . import SCLayoutClass as sc
+    from functools import reduce
 elif version_info[0] == 2:
     import SCLayoutClass as sc
 
