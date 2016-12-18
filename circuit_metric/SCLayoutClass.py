@@ -2,7 +2,12 @@ import bidict as bd
 import itertools as it
 from layout_utils import *
 from math import copysign
-import matplotlib.pyplot as plt
+
+try:
+    import matplotlib.pyplot as plt
+except RuntimeError:
+    pass #hope you don't want to draw
+
 import networkx as nx
 import numpy as np
 from operator import add
