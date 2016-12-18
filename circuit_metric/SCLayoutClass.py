@@ -316,6 +316,8 @@ class SCLayout(object):
             return x_top + x_bot
         elif log_type == 'Z':
             return z_right + z_left
+        else:
+            raise ValueError("unknown logical type: {}".format(log_type))
         
 
     def extractor(self):
