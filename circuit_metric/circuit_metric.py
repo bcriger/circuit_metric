@@ -32,7 +32,7 @@ __all__ = [
             "model_to_pairs", "css_pairs", "fault_probs", "nq",
             "quantify", "metric_to_nx", "css_metrics", "stack_metrics",
             "weighted_event_graph", "metric_to_matrix", "neg_log_odds",
-            "apply_step"
+            "apply_step", "fancy_weights"
         ]
 
 #-----------------------------constants-------------------------------#
@@ -497,7 +497,7 @@ def fancy_weights(prob_mat):
     Since all weights p are 0 < p < 1, we're probably good. 
     """
     nlo = np.vectorize(lambda p: -np.log( p / (1. - p) ))
-    idnt = np.identity(prob_mat.shape)
+    idnt = np.identity(prob_mat.shape[0])
     return nlo(-np.linalg.inv(test_mat - idnt) - idnt)
 
 def apply_step(step, pauli):
