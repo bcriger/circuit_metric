@@ -498,7 +498,7 @@ def fancy_weights(prob_mat):
     """
     nlo = np.vectorize(lambda p: -np.log( p / (1. - p) ))
     idnt = np.identity(prob_mat.shape[0])
-    return nlo(-np.linalg.inv(test_mat - idnt) - idnt)
+    return nlo(-np.linalg.inv(prob_mat - idnt) - idnt)
 
 def apply_step(step, pauli):
     """
