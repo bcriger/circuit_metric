@@ -1,5 +1,6 @@
 import bidict as bd
 import itertools as it
+from layout_utils import *
 from math import copysign
 
 try:
@@ -78,7 +79,7 @@ class SCLayout(object):
         self.map = bd.bidict(zip(sorted(bits), range(len(bits))))
         self.dx = dx
         self.dy = dy
-        self.n = 2 * dx*dy - 1
+        self.n = 2 * dx * dy - 1
 
         #############################################################
         boundary = {'z_top': (), 'z_bot': (), 'x_left': (), 'x_right': ()}
@@ -308,7 +309,16 @@ class SCLayout(object):
         z_right = tuple([(2 * dx, y) for y in range(2, 2 * dy + 1, 4)])
         z_left = tuple([(0, y) for y in range(2 * dy - 2, -1, -4)])
         x_bot = tuple([(x, 0) for x in range(2 * dx, 0, -4)])
-        return x_top + x_bot if log_type == 'X' else z_right + z_left
+        
+        log_type = log_type.upper()
+        
+        if log_type == 'X':
+            return x_top + x_bot
+        elif log_type == 'Z':
+            return z_right + z_left
+        else:
+            raise ValueError("unknown logical type: {}".format(log_type))
+        
 
     def extractor(self):
         """
@@ -383,9 +393,6 @@ class SCLayout(object):
         return pl
 
 # -----------------------convenience functions-------------------------#
-ad = lambda tpl_0, tpl_1: tuple(a + b for a, b, in zip(tpl_0, tpl_1))
-
-
 def support(timestep):
     output = []
     for elem in timestep:
