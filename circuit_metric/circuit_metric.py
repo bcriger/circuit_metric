@@ -32,7 +32,7 @@ __all__ = [
             "model_to_pairs", "css_pairs", "fault_probs", "nq",
             "quantify", "metric_to_nx", "css_metrics", "stack_metrics",
             "weighted_event_graph", "metric_to_matrix", "neg_log_odds",
-            "apply_step", "fancy_weights"
+            "apply_step", "fancy_weights", "bit_flip_metric"
         ]
 
 #-----------------------------constants-------------------------------#
@@ -618,4 +618,41 @@ def visualize(metric_stack, flnm):
 
     scene = Scene( camera, objects = node_lst + edge_lst)
     scene.render(flnm, width=2000, height=2000)
+
+def bit_flip_metric(d, p, ltr='x'):
+    """
+    I have a sneaking suspicion that using the new metric from Tom is
+    going to fix my low threshold. 
+    This has something to do with boundary conditions. 
+    The idea here is to put all the boundary vertices in the metric, 
+    so that the effective length to the closest vertex can be found. 
+    Some of these ideas are not well-justified, but I'll worry about
+    that if I keep having low thresholds. 
+    ltr is the type of ERROR you're trying to correct.
+
+    I output enough info to make a nice function that takes you from
+    co-ordinates to weights like Sim2D.pair_dist does. 
+    """
+    ltr = ltr.lower()
+    layout = sc.SCLayout(d)
+    if ltr == 'x':
+        vertices = layout.z_ancs() + layout.boundary_points('x')
+    elif ltr == 'z':
+        vertices = layout.x_ancs() + layout.boundary_points('z')
+
+    vertices = sorted(vertices)
+    g = nx.Graph()
+    g.add_nodes_from(vertices)
+    shfts = [(2,2), (2,-2), (-2, 2), (-2, -2)]
+    for vertex in vertices:
+        for shft in shfts:
+            other_vertex = (vertex[0] + shft[0], vertex[1] + shft[1])
+            if other_vertex in vertices:
+                g.add_edge(vertex, other_vertex)
+
+    # That's the graph done. Now let's get the adjacency matrix and
+    # fancy it.
+    adj_mat = nx.adjacency_matrix(g).todense()
+    return vertices, fancy_weights(p * adj_mat)
+
 #---------------------------------------------------------------------#
