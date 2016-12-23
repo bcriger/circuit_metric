@@ -652,7 +652,8 @@ def bit_flip_metric(d, p, ltr='x'):
 
     # That's the graph done. Now let's get the adjacency matrix and
     # fancy it.
-    adj_mat = nx.adjacency_matrix(g).todense()
-    return vertices, fancy_weights(p * adj_mat)
+    adj_mat = nx.adjacency_matrix(g, nodelist=vertices).todense()
+    wts = fancy_weights(p * adj_mat)
+    return vertices, wts / np.amin(wts)
 
 #---------------------------------------------------------------------#
