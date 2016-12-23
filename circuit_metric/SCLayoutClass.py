@@ -93,7 +93,7 @@ class SCLayout(object):
         self.ydim = 2 * self.dy + 1
 
         coordList = list(it.product(range(self.xdim), range(self.ydim)))
-        self.crd2name = { (x,y): "N"+str(x)+str(y) for (x,y) in coordList}
+        self.crd2name = { (x,y): "N" + str(x) + str(y) for (x, y) in coordList}
 
         self.dList = []
         self.xList = []
