@@ -13,6 +13,7 @@ import numpy as np
 import qecc as q
 from qecc import Location
 from collections import defaultdict
+import math
 import networkx as nx
 import vapory as vp
 
@@ -32,7 +33,8 @@ __all__ = [
             "model_to_pairs", "css_pairs", "fault_probs", "nq",
             "quantify", "metric_to_nx", "css_metrics", "stack_metrics",
             "weighted_event_graph", "metric_to_matrix", "neg_log_odds",
-            "apply_step", "fancy_weights", "bit_flip_metric"
+            "apply_step", "fancy_weights", "bit_flip_metric",
+            "fault_list"
         ]
 
 #-----------------------------constants-------------------------------#
@@ -77,7 +79,8 @@ def set_prob(ps, ys):
 
 def r_event_prob(prob_set, r=1):
     """
-    Input: prob_set; a set of probabilities corresponding to different events.
+    Input: prob_set; a set of probabilities corresponding to different
+    events.
     Input: r; a number of events which occur (default 1). 
     Output: the probability of exactly r events occurring.
     """
@@ -366,24 +369,8 @@ def css_pairs(synds, layout, synd_tp):
     del pairs[()] #ignore errors with inappropriate syndromes
 
     return pairs
-#---------------------------------------------------------------------#
 
-#-----------------------surface code specifics------------------------#
-def fault_probs(distance, p=None, test=False):
-    """
-    Returns a list which is as long as the syndrome extractor. Each 
-    entry contains the Paulis which may occur immediately after that 
-    timestep, and a symbolic/numeric probability based on a hardcoded
-    symmetric error model.
-
-    if testing, assigns a string to the pair, so you can tell which
-    faults do what.
-    """
-
-    layout = sc.SCLayout(distance)
-    circ = layout.extractor()
-    p = p if p else sp.Symbol('p')
-
+def fault_list(circ, p):
     prep = prep_faults(circ)
     meas = meas_faults(circ)
     cnot = str_faults(circ, 'CNOT')
@@ -420,6 +407,26 @@ def fault_probs(distance, p=None, test=False):
                 out_lst[dx] = [elm for elm in out_lst[dx] if elm[0] != key]
                 out_lst[dx].append((key, unique_p))
         
+    return out_lst, circ
+#---------------------------------------------------------------------#
+
+#-----------------------surface code specifics------------------------#
+def fault_probs(distance, p=None, test=False):
+    """
+    Returns a list which is as long as the syndrome extractor. Each 
+    entry contains the Paulis which may occur immediately after that 
+    timestep, and a symbolic/numeric probability based on a hardcoded
+    symmetric error model.
+
+    if testing, assigns a string to the pair, so you can tell which
+    faults do what.
+    """
+
+    layout = sc.SCLayout(distance)
+    circ = layout.extractor()
+    p = p if p else sp.Symbol('p')
+
+    out_lst, circ = fault_list(circ)
     return out_lst, circ, layout
 #---------------------------------------------------------------------#
 
@@ -484,21 +491,32 @@ def appropriate_log(vals):
     else:
         return np.log
 
-def fancy_weights(prob_mat):
+def fancy_weights(prob_mat, subtract_diag=False, distance=None):
     """
     From Tom O'Brien:
     If you want to evaluate the probability of getting from vertex A to
     vertex B with a weird SAW, you can sum powers of a weighted
-    adjacency matrix for the vertices. 
+    adjacency matrix for the vertices. FALSE. You have to subtract off the non-SA walks. This is a TODO.
     If you take the limit as step length goes to infinity, this sum
     converges to: 
     -(P - I)^{-1} - I
     as long as |P| < 1. 
     Since all weights p are 0 < p < 1, we're probably good. 
     """
-    nlo = np.vectorize(lambda p: -np.log( p / (1. - p) ))
+    nlo = np.vectorize(lambda p: -math.log( p / (1. - p) ))
     idnt = np.identity(prob_mat.shape[0])
-    return nlo(-np.linalg.inv(prob_mat - idnt) - idnt)
+    if subtract_diag:
+        if distance is None:
+            raise ValueError("if you set subtract_diag to True, you "
+                                "have to input a distance.")
+        p_sum_mat = prob_mat.copy()
+        for step_dx in range(2 * distance):
+            temp_mat = p_sum_mat * prob_mat
+            temp_mat -= np.diagonal(np.diagonal(temp_mat))
+            p_sum_mat += temp_mat
+    else:
+        p_sum_mat = np.linalg.inv(idnt - prob_mat) - idnt 
+    return nlo(metric)
 
 def apply_step(step, pauli):
     """
@@ -623,7 +641,8 @@ def bit_flip_metric(d, p, ltr='x'):
     """
     I have a sneaking suspicion that using the new metric from Tom is
     going to fix my low threshold. 
-    This has something to do with boundary conditions. 
+    This has something to do with boundary conditions; only when you're
+    not on the torus do the fancy weights have a 'tie-breaking' effect. 
     The idea here is to put all the boundary vertices in the metric, 
     so that the effective length to the closest vertex can be found. 
     Some of these ideas are not well-justified, but I'll worry about

@@ -19,16 +19,20 @@ if PVER == 3:
     from functools import reduce
 
 #------------------------------constants------------------------------#
+
+SHIFTS_README = """(dx, dy) so that, given an ancilla co-ordinate
+                   (x, y), there will be data qubits at
+                   (x + dx, y + dy)."""
 SHIFTS = {
             'N': ((-1, 1), (1, 1)),
             'E': ((1, 1), (1, -1)),
             'W': ((-1, 1), (-1, -1)),
             'S': ((1, -1), (-1, -1))
-            }
+        }
 SHIFTS['A'] = SHIFTS['E'] + SHIFTS['W']
-SHIFTS_README = """(dx, dy) so that, given an ancilla co-ordinate
-                   (x, y), there will be data qubits at
-                   (x + dx, y + dy)."""
+
+TC_SHIFTS = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+
 LOCS_README = """dict of whitelists for location types, including
                  single/two-qubit gates, X/Z preparations,
                  and X/Z measurements, with other special gates
@@ -41,8 +45,58 @@ LOCS['SINGLE_GATES'] = ['I', 'H', 'P',
 LOCS['DOUBLE_GATES'] = ['CNOT', 'CPHASE', 'ZZ90', 'SWAP']
 LOCS['PREPARATIONS'] = ['P_X', 'P_Z']
 LOCS['MEASUREMENTS'] = ['M_X', 'M_Z']
+
 #---------------------------------------------------------------------#
 
+class TCLayout(object):
+    """
+    Closed boundary conditions are the best.
+    """
+    def __init__(self, l):
+        self.l = l #l-by-l tiling of the torus
+
+        self.datas = tuple(sorted(even_odds(l, l) + odd_evens(l, l)))
+        self.ancillas = {   
+                            'X' : tuple(sorted(even_evens(l, l))),
+                            'Z' : tuple(sorted(odd_odds(l, l)))
+                        }
+        bits = self.datas + sum(self.ancillas.values(), ())
+        self.map = crd_to_int(bits)
+        self.n = 4 * l ** 2 #total, data + ancilla
+    
+    def x_ancs(self):
+        return self.ancillas['X']
+    
+    def z_ancs(self):
+        return self.ancillas['Z']
+    
+    def stabilisers(self):
+        """
+        Sometimes it's convenient to have the stabilisers of a surface
+        code, especially when doing a 2d example.
+        """
+        stab_dict = {'X' : {}, 'Z' : {}}
+
+        for key in stab_dict.keys():
+            for anc in self.ancillas[key]:
+                d_set = [self.map[ad(anc, shft, self.l)] for shft in TC_SHIFTS]
+                stab = sp.X(d_set) if key == "X" else sp.Z(d_set)
+                stab_dict[key][self.map[anc]] = stab
+
+        return stab_dict
+
+    def logicals(self):
+        x_1 = [self.map[(x, 1)] for x in _evens(self.l)]
+        x_2 = [self.map[(1, y)] for y in _evens(self.l)]
+        z_1 = [self.map[(x, 0)] for x in _odds(self.l)]
+        z_2 = [self.map[(0, y)] for y in _odds(self.l)]
+        return [sp.X(x_1), sp.X(x_2), sp.Z(z_1), sp.Z(z_2)]
+
+    def boundary_points(*args):
+        return []
+
+    def extractor(self):
+        pass #for when we do 3D
 
 class SCLayout(object):
     """
@@ -76,7 +130,7 @@ class SCLayout(object):
 
         bits = self.datas + list(it.chain.from_iterable(anc.values()))
 
-        self.map = bd.bidict(zip(sorted(bits), range(len(bits))))
+        self.map = crd_to_int(bits)
         self.dx = dx
         self.dy = dy
         self.n = 2 * dx * dy - 1
@@ -394,6 +448,9 @@ class SCLayout(object):
 
 # -----------------------convenience functions-------------------------#
 def support(timestep):
+    """
+    Qubits on which a list of gates act.
+    """
     output = []
     for elem in timestep:
         output += elem[1:]
@@ -433,5 +490,78 @@ def diag_intersection(crd_0, crd_1, ancs=None):
 
     return mid_v
 
-# ---------------------------------------------------------------------#
+#---------------------------------------------------------------------#
 
+
+#------------------toric code convenience functions-------------------#
+
+grid = lambda lst_1, lst_2: map(tuple, list(it.product(lst_1, lst_2)))
+
+_evens = lambda n: range(0, 2 * n, 2)
+
+_odds = lambda n: range(1, 2 * n + 1, 2)
+
+even_odds = lambda nx, ny: grid(_evens(nx), _odds(ny))
+
+odd_evens = lambda nx, ny: grid(_odds(nx), _evens(ny))
+
+even_evens = lambda nx, ny: grid(_evens(nx), _evens(ny))
+
+odd_odds = lambda nx, ny: grid(_odds(nx), _odds(ny))
+
+crd_to_int = lambda lst: bd.bidict(zip(sorted(lst), range(len(lst))))
+
+def sym_coords(nx, ny):
+    """
+    Convenience function for square lattice definition, returns all
+    pairs of co-ordinates on an n-by-n lattice which are both even or
+    both odd. Note that it iterates over all of the points in the 2D
+    grid which is nx-by-ny large, this is so the list of returned
+    coordinates is sorted.
+    """
+    symmetric_coordinates = []
+    for x in range(2 * nx):
+        if x % 2 == 0:
+            for y in range(2 * ny):
+                if y % 2 == 0:
+                    symmetric_coordinates.append((x, y))
+        else:
+            for y in range(2 * ny):
+                if y % 2 == 1:
+                    symmetric_coordinates.append((x, y))
+    return symmetric_coordinates
+
+
+def skew_coords(nx, ny):
+    """
+    Convenience function for square lattice definition, returns all
+    pairs of co-ordinates on an n-by-n lattice which are "even-odd" or
+    "odd-even".Note that it iterates over all of the points in the 2D
+    grid which is nx-by-ny large, this is so the list of returned
+    coordinates is sorted.
+    """
+    skewed_coordinates = []
+    for x in range(2 * nx):
+        if x % 2 == 0:
+            for y in range(2 * ny):
+                if y % 2 == 1:
+                    skewed_coordinates.append((x, y))
+        else:
+            for y in range(2 * ny):
+                if y % 2 == 0:
+                    skewed_coordinates.append((x, y))
+    return skewed_coordinates
+
+
+def all_coords(nx, ny):
+    """
+    Returns all points on a square lattice, used to determine the dual
+    lattice of the SquareOctagonLattice.
+    """
+    all_coordinates = []
+    for x in range(2 * nx):
+        for y in range(2 * ny):
+            all_coordinates.append((x, y))
+    return all_coordinates
+
+#---------------------------------------------------------------------#
