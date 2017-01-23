@@ -1,6 +1,20 @@
+# The import syntax changes slightly between python 2 and 3, so we
+# need to detect which version is being used:
+from sys import version_info
+if version_info[0] == 3:
+    PY3 = True
+    from importlib import reload
+    from functools import reduce
+elif version_info[0] == 2:
+    PY3 = False
+else:
+    raise EnvironmentError("sys.version_info refers to a version of "
+        "Python neither 2 nor 3. This is not permitted. "
+        "sys.version_info = {}".format(version_info))
+
 import bidict as bd
 import itertools as it
-from layout_utils import *
+from .layout_utils import *
 from math import copysign
 
 try:
@@ -12,11 +26,6 @@ import networkx as nx
 import numpy as np
 from operator import add
 import sparse_pauli as sp
-
-from sys import version_info
-PVER = version_info[0]
-if PVER == 3:
-    from functools import reduce
 
 #------------------------------constants------------------------------#
 
@@ -56,20 +65,20 @@ class TCLayout(object):
         self.l = l #l-by-l tiling of the torus
 
         self.datas = tuple(sorted(even_odds(l, l) + odd_evens(l, l)))
-        self.ancillas = {   
+        self.ancillas = {
                             'X' : tuple(sorted(even_evens(l, l))),
                             'Z' : tuple(sorted(odd_odds(l, l)))
                         }
         bits = self.datas + sum(self.ancillas.values(), ())
         self.map = crd_to_int(bits)
         self.n = 4 * l ** 2 #total, data + ancilla
-    
+
     def x_ancs(self):
         return self.ancillas['X']
-    
+
     def z_ancs(self):
         return self.ancillas['Z']
-    
+
     def stabilisers(self):
         """
         Sometimes it's convenient to have the stabilisers of a surface
@@ -188,12 +197,10 @@ class SCLayout(object):
             #self.crd2name[(x,y)] = "BZ" + str( self.map[ (x-2,y+2) ] ).zfill(2)
             #self.zBndryList.append(self.crd2name[(x,y)])
 
-        if PVER is 2:
-            self.name2crd = {v: k for k, v in self.crd2name.iteritems()}
-        elif PVER is 3:
+        if PY3:
             self.name2crd = {v: k for k, v in self.crd2name.items()}
         else:
-            print("Python version error")
+            self.name2crd = {v: k for k, v in self.crd2name.iteritems()}
 
         g = nx.Graph()
         self.pos = self.name2crd
@@ -363,16 +370,16 @@ class SCLayout(object):
         z_right = tuple([(2 * dx, y) for y in range(2, 2 * dy + 1, 4)])
         z_left = tuple([(0, y) for y in range(2 * dy - 2, -1, -4)])
         x_bot = tuple([(x, 0) for x in range(2 * dx, 0, -4)])
-        
+
         log_type = log_type.upper()
-        
+
         if log_type == 'X':
             return x_top + x_bot
         elif log_type == 'Z':
             return z_right + z_left
         else:
             raise ValueError("unknown logical type: {}".format(log_type))
-        
+
 
     def extractor(self):
         """
