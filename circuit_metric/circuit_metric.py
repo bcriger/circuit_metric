@@ -229,7 +229,7 @@ def str_faults(circ, gt_str):
     Takes a sub-circuit which has been padded with waits, and returns an
     iterator onto Paulis which may occur as faults after this sub-circuit.
     
-    :param qecc.Circuit circuit: Subcircuit to in which faults are to 
+    :param qecc.Circuit circuit: Subcircuit in which faults are to 
     be considered.
 
     """
@@ -255,13 +255,12 @@ def prop_circ(circ_lst, waits=False):
     # circ_lst += circ_lst
     prop_lst = map(lambda lst: filter(is_allowed, lst), circ_lst)
     dumb_circ = q.Circuit(*sum(prop_lst, []))
-    #print 'dumb_circ', dumb_circ
     quaec_circs = list(dumb_circ.group_by_time(pad_with_waits=waits))
 
     return quaec_circs
 
 
-def synd_set(circ, fault, time):
+def synd_set(circ, fault, time, prop_twice=True):
     """
     for a single fault, propagates over a circuit with prep/meas
     locations and returns the syndrome pair as a pair of 3D 
@@ -271,7 +270,7 @@ def synd_set(circ, fault, time):
 
     output = [[], []]
     n_bits = nq(circ)  # dumb
-
+    #TODO Make this its own function
     for step, prop in zip(circ[time + 1:], cliffs[time + 1:]):
         # preps eliminate faults
         for idx in [tpl[1] for tpl in loc_type(step, 'P')]:
@@ -280,14 +279,16 @@ def synd_set(circ, fault, time):
         output[0].extend(syndromes(step, fault, n_bits))
         # step forward
         fault = prop.conjugate_pauli(fault)
-    for step, prop in zip(circ, cliffs):
-        # preps eliminate faults
-        for idx in [tpl[1] for tpl in loc_type(step, 'P')]:
-            fault.op = fault.op[:idx] + 'I' + fault.op[idx + 1:]
-        # measurements make syndromes
-        output[1].extend(syndromes(step, fault, n_bits))
-        # step forward
-        fault = prop.conjugate_pauli(fault)
+
+    if prop_twice:
+        for step, prop in zip(circ, cliffs):
+            # preps eliminate faults
+            for idx in [tpl[1] for tpl in loc_type(step, 'P')]:
+                fault.op = fault.op[:idx] + 'I' + fault.op[idx + 1:]
+            # measurements make syndromes
+            output[1].extend(syndromes(step, fault, n_bits))
+            # step forward
+            fault = prop.conjugate_pauli(fault)
 
     return output
 
@@ -370,7 +371,7 @@ def css_pairs(synds, layout, synd_tp):
 
     return pairs
 
-def fault_list(circ, p):
+def fault_list(circ, p, test=False):
     prep = prep_faults(circ)
     meas = meas_faults(circ)
     cnot = str_faults(circ, 'CNOT')
@@ -426,7 +427,7 @@ def fault_probs(distance, p=None, test=False):
     circ = layout.extractor()
     p = p if p else sp.Symbol('p')
 
-    out_lst, circ = fault_list(circ)
+    out_lst, circ = fault_list(circ, p, test)
     return out_lst, circ, layout
 #---------------------------------------------------------------------#
 
@@ -516,7 +517,7 @@ def fancy_weights(prob_mat, subtract_diag=False, distance=None):
             p_sum_mat += temp_mat
     else:
         p_sum_mat = np.linalg.inv(idnt - prob_mat) - idnt 
-    return nlo(metric)
+    return nlo(p_sum_mat)
 
 def apply_step(step, pauli):
     """
