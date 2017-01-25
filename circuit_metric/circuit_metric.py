@@ -691,10 +691,17 @@ def bit_flip_metric(d, p, ltr='x', bc='rotated'):
     vertices = sorted(vertices)
     g = nx.Graph()
     g.add_nodes_from(vertices)
-    shfts = [(2,2), (2,-2), (-2, 2), (-2, -2)]
+    if bc == 'rotated':
+        shfts = [(2, 2), (2, -2), (-2, 2), (-2, -2)]
+    elif bc == 'closed':
+        shfts = [(2, 0), (0, -2), (-2, 0), (0, -2)]
     for vertex in vertices:
         for shft in shfts:
-            other_vertex = (vertex[0] + shft[0], vertex[1] + shft[1])
+            if bc == 'rotated':
+                other_vertex = (vertex[0] + shft[0], vertex[1] + shft[1])
+            elif bc == 'closed':
+                other_vertex = ((vertex[0] + shft[0]) % (2*d),
+                                (vertex[1] + shft[1]) % (2*d))
             if other_vertex in vertices:
                 g.add_edge(vertex, other_vertex)
 
