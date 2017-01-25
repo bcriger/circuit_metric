@@ -8,7 +8,7 @@ import itertools as it
 # associated with overloaded operators, I import them from operator
 # with names that seem weird a priori. Is there a way to make this 
 # clear and concise? 
-from operator import mul, add, xor as sym_diff, or_ as union
+from operator import mul, add, xor as sym_diff, or_ as union, and_
 import numpy as np
 import qecc as q
 from qecc import Location
@@ -34,7 +34,7 @@ __all__ = [
             "quantify", "metric_to_nx", "css_metrics", "stack_metrics",
             "weighted_event_graph", "metric_to_matrix", "neg_log_odds",
             "apply_step", "fancy_weights", "bit_flip_metric",
-            "fault_list"
+            "fault_list", "prop_fault"
         ]
 
 #-----------------------------constants-------------------------------#
@@ -107,7 +107,7 @@ def prob_odd_events(prob_set, order=1):
 def dict_to_metric(pair_p_dict, order=1, weight='neg_log_odds',
                     wt_bits=None, fmt=None):
     """
-    The output of the error propagation and combinatronics is a
+    The output of the error propagation and combinatorics is a
     dictionary whose keys are syndrome pairs and whose values are 
     sets of probabilities. This is enough information to construct the
     metric, but we do that here, because of a few issues that may 
@@ -259,6 +259,34 @@ def prop_circ(circ_lst, waits=False):
 
     return quaec_circs
 
+def restricted_pauli(pauli, qubits):
+    """
+    Restricts a Pauli to a set of qubits.
+    e.g. restricted_pauli('XYZXYZ', [0, 3]) == 'XX'
+    """
+    if qubits is None:
+        return None
+    else:
+        return reduce(and_, [pauli[q] for q in qubits])
+
+def prop_fault(circ, fault, time, qubits):
+    """
+    Propagates a fault after time `time` through the remainder of 
+    a circuit, and returns the portion which is supported on the 
+    specified qubits.
+    """
+    cliffs = map(lambda c: c.as_clifford(), prop_circ(circ, waits=True))
+
+    n_bits = nq(circ)  # dumb
+    #TODO Make this its own function
+    for step, prop in zip(circ[time + 1:], cliffs[time + 1:]):
+        # preps eliminate faults
+        for idx in [tpl[1] for tpl in loc_type(step, 'P')]:
+            fault.op = fault.op[:idx] + 'I' + fault.op[idx + 1:]
+        # step forward
+        fault = prop.conjugate_pauli(fault)
+
+    return restricted_pauli(fault, qubits)
 
 def synd_set(circ, fault, time, prop_twice=True):
     """
@@ -638,7 +666,7 @@ def visualize(metric_stack, flnm):
     scene = Scene( camera, objects = node_lst + edge_lst)
     scene.render(flnm, width=2000, height=2000)
 
-def bit_flip_metric(d, p, ltr='x'):
+def bit_flip_metric(d, p, ltr='x', bc='rotated'):
     """
     I have a sneaking suspicion that using the new metric from Tom is
     going to fix my low threshold. 
@@ -654,7 +682,7 @@ def bit_flip_metric(d, p, ltr='x'):
     co-ordinates to weights like Sim2D.pair_dist does. 
     """
     ltr = ltr.lower()
-    layout = sc.SCLayout(d)
+    layout = sc.SCLayout(d) if bc == 'rotated' else sc.TCLayout(d)
     if ltr == 'x':
         vertices = layout.z_ancs() + layout.boundary_points('x')
     elif ltr == 'z':
