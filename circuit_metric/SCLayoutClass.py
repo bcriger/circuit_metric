@@ -102,7 +102,7 @@ class TCLayout(object):
         return [sp.X(x_1), sp.X(x_2), sp.Z(z_1), sp.Z(z_2)]
 
     def boundary_points(*args):
-        return []
+        return ()
 
     def extractor(self):
         pass #for when we do 3D
