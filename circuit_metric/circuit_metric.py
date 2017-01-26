@@ -539,10 +539,12 @@ def fancy_weights(prob_mat, subtract_diag=False, distance=None):
             raise ValueError("if you set subtract_diag to True, you "
                                 "have to input a distance.")
         p_sum_mat = prob_mat.copy()
-        for step_dx in range(2 * distance):
-            temp_mat = p_sum_mat * prob_mat
-            temp_mat -= np.diagonal(np.diagonal(temp_mat))
+        for step_dx in range(2, 2 * distance + 1):
+            temp_mat = np.linalg.matrix_power(prob_mat, step_dx)
+            temp_mat -= np.diag(np.diag(temp_mat))
             p_sum_mat += temp_mat
+        #To avoid math error, add on p = 1/2 on the diagonal
+        p_sum_mat += 0.5 * idnt
     else:
         p_sum_mat = np.linalg.inv(idnt - prob_mat) - idnt 
     return nlo(p_sum_mat)
@@ -666,7 +668,7 @@ def visualize(metric_stack, flnm):
     scene = Scene( camera, objects = node_lst + edge_lst)
     scene.render(flnm, width=2000, height=2000)
 
-def bit_flip_metric(d, p, ltr='x', bc='rotated'):
+def bit_flip_metric(d, p, ltr='x', bc='rotated', subtract_diag=False, distance=None):
     """
     I have a sneaking suspicion that using the new metric from Tom is
     going to fix my low threshold. 
@@ -708,7 +710,7 @@ def bit_flip_metric(d, p, ltr='x', bc='rotated'):
     # That's the graph done. Now let's get the adjacency matrix and
     # fancy it.
     adj_mat = nx.adjacency_matrix(g, nodelist=vertices).todense()
-    wts = fancy_weights(p * adj_mat)
-    return vertices, wts / np.amin(wts)
+    wts = fancy_weights(p * adj_mat, subtract_diag, distance)
+    return vertices, wts # / np.amin(wts) #sometimes cool for int values, but breaks
 
 #---------------------------------------------------------------------#
