@@ -539,8 +539,9 @@ def fancy_weights(prob_mat, subtract_diag=False, distance=None):
             raise ValueError("if you set subtract_diag to True, you "
                                 "have to input a distance.")
         p_sum_mat = prob_mat.copy()
+        temp_mat = prob_mat.copy()
         for step_dx in range(2, 2 * distance + 1):
-            temp_mat = np.linalg.matrix_power(prob_mat, step_dx)
+            temp_mat *= prob_mat
             temp_mat -= np.diag(np.diag(temp_mat))
             p_sum_mat += temp_mat
         #To avoid math error, add on p = 1/2 on the diagonal
