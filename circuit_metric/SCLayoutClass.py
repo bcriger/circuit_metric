@@ -124,9 +124,13 @@ class SCLayout(object):
         anc = {'x_sq': (), 'z_sq': (), 'x_top': (), 'x_bot': (), 'z_left': (), 'z_right': ()}
 
         anc['x_top'] = tuple([(x, 2 * dy) for x in range(2, 2 * dx, 4)])
-        anc['z_right'] = tuple([(2 * dx, y) for y in range(4, 2 * dy, 4)])
         anc['z_left'] = tuple([(0, y) for y in range(2 * dy - 4, 0, -4)])
-        anc['x_bot'] = tuple([(x, 0) for x in range(2 * dx - 2, 0, -4)])
+        if dx % 2 == dy % 2:
+            anc['z_right'] = tuple([(2 * dx, y) for y in range(4, 2 * dy, 4)])
+            anc['x_bot'] = tuple([(x, 0) for x in range(2 * dx - 2, 0, -4)])
+        else:
+            anc['z_right'] = tuple([(2 * dx, y) for y in range(2, 2 * dy, 4)])
+            anc['x_bot'] = tuple([(x, 0) for x in range(2 * dx - 4, 0, -4)])
         x_sq_anc = tuple(it.product(range(4, 2 * dx, 4), range(2 * dy - 2, 0, -4)))
         x_sq_anc += tuple(it.product(range(2, 2 * dx, 4), range(2 * dy - 4, 0, -4)))
         anc['x_sq'] = x_sq_anc
