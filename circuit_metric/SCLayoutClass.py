@@ -151,9 +151,14 @@ class SCLayout(object):
         #############################################################
         boundary = {'z_top': (), 'z_bot': (), 'x_left': (), 'x_right': ()}
         boundary['z_top'] = tuple([(x, 2 * dy) for x in range(0, 2 * dx, 4)])
-        boundary['x_right'] = tuple([(2 * dx, y) for y in range(2, 2 * dy + 1, 4)])
         boundary['x_left'] = tuple([(0, y) for y in range(2 * dy - 2, -1, -4)])
-        boundary['z_bot'] = tuple([(x, 0) for x in range(2 * dx, 0, -4)])
+        if dx % 2 == dy % 2:
+            boundary['z_bot'] = tuple([(x, 0) for x in range(2 * dx, 0, -4)])
+            boundary['x_right'] = tuple([(2 * dx, y) for y in range(2, 2 * dy + 1, 4)])
+        else:
+            boundary['z_bot'] = tuple([(x, 0) for x in range(2 * dx - 2, -2, -4)])
+            boundary['x_right'] = tuple([(2 * dx, y) for y in range(0, 2 * dy - 1, 4)])
+
         self.boundary = boundary
 
         self.xdim = 2 * self.dx + 1
@@ -368,19 +373,21 @@ class SCLayout(object):
         logicals of the type 'log_type' have to traverse between pairs
         of output boundary points
         """
-        dx = self.dx
-        dy = self.dy
-        x_top = tuple([(x, 2 * dy) for x in range(0, 2 * dx, 4)])
-        z_right = tuple([(2 * dx, y) for y in range(2, 2 * dy + 1, 4)])
-        z_left = tuple([(0, y) for y in range(2 * dy - 2, -1, -4)])
-        x_bot = tuple([(x, 0) for x in range(2 * dx, 0, -4)])
+        # dx = self.dx
+        # dy = self.dy
+        # x_top = tuple([(x, 2 * dy) for x in range(0, 2 * dx, 4)])
+        # z_right = tuple([(2 * dx, y) for y in range(2, 2 * dy + 1, 4)])
+        # z_left = tuple([(0, y) for y in range(2 * dy - 2, -1, -4)])
+        # x_bot = tuple([(x, 0) for x in range(2 * dx, 0, -4)])
 
         log_type = log_type.upper()
 
         if log_type == 'X':
-            return x_top + x_bot
+            return self.boundary['z_top'] + self.boundary['z_bot']
+            # return x_top + x_bot
         elif log_type == 'Z':
-            return z_right + z_left
+            return self.boundary['x_right'] + self.boundary['x_left']
+            # return z_right + z_left
         else:
             raise ValueError("unknown logical type: {}".format(log_type))
 
