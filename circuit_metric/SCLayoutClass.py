@@ -57,6 +57,16 @@ LOCS['MEASUREMENTS'] = ['M_X', 'M_Z']
 
 #---------------------------------------------------------------------#
 
+class PCLayout(object):
+    """
+    Planar Code Layout with smooth/rough boundaries.
+    """
+    def __init__(self, dx, dy=None):
+        dy = dy if dy else dx
+        self.dx = dx
+        self.dy = dy
+        
+
 class TCLayout(object):
     """
     Closed boundary conditions are the best.
