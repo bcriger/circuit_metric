@@ -441,12 +441,12 @@ class SCLayout(object):
 
         return timesteps
 
-        def extractor_h(self):
+    def extractor_h(self):
         """
         Returns a circuit for doing syndrome extraction, including:
         + 8 timesteps
         """
-     
+        
         t_0 = self.op_set_1('P', self.x_ancs(0))
         t_0 += self.op_set_1('P', self.z_ancs(0))
 
