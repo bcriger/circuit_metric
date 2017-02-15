@@ -590,6 +590,37 @@ def apply_step(step, pauli):
     
     return ({'X': x_synds, 'Z': z_synds}, pauli)
 
+def add_step(step, pauli):
+    """
+   Another version of apply_step, this fucntion is consistant with the function 
+   'extractor_h in SCLayout.'
+    """
+
+    qubits = reduce(union, map(set, [tpl[1:] for tpl in step]))
+    ids, h, z_ps, z_ms = [
+        [tpl[1] for tpl in step if tpl[0] == name]
+        for name in ['I', 'H', 'P', 'M']
+        ]
+    cnots = [tpl[1:] for tpl in step if tpl[0] == 'CNOT']
+
+    cnot_qs = sum(cnots, ())
+
+    test_qs = reduce(sym_diff,
+                     map(set,
+                         [ids, z_ps, h, z_ms, cnot_qs]
+                         )
+                     )
+
+    if test_qs != qubits:
+        raise ValueError("qubit sets must not intersect.")
+
+    pauli.cnot(cnots)
+    pauli.prep(z_ps)
+
+    z_synds = pauli.meas(z_ms, basis='Z')
+
+    return z_synds, pauli
+    
 #---------------------------------------------------------------------#
 
 #------------------------user-level functions-------------------------#
