@@ -432,6 +432,48 @@ class SCLayout(object):
 
         return timesteps
 
+        def extractor_h(self):
+        """
+        Returns a circuit for doing syndrome extraction, including:
+        + 8 timesteps
+        """
+     
+        t_0 = self.op_set_1('P', self.x_ancs(0))
+        t_0 += self.op_set_1('P', self.z_ancs(0))
+
+        t_1 = self.op_set_1('H', self.x_ancs(0))
+
+        t_2 = self.x_cnot((1, 1), self.x_ancs(0))
+        t_2 += self.z_cnot((1, 1), self.z_ancs(0))
+        t_2 += self.op_set_1('P', self.ancillas['x_top'])
+        t_2 += self.op_set_1('P', self.ancillas['z_right'])
+
+        t_3 = self.x_cnot((-1, 1), self.x_ancs(0))
+        t_3 += self.z_cnot((1, -1), self.z_ancs(0))
+        t_3 += self.op_set_1('H', self.ancillas['x_top'])
+
+        t_4 = self.x_cnot((1, -1), self.x_ancs(1))
+        t_4 += self.z_cnot((-1, 1), self.z_ancs(1))
+        t_4 += self.op_set_1('H', self.ancillas['x_bot'])
+
+        t_5 = self.x_cnot((-1, -1), self.x_ancs(1))
+        t_5 += self.z_cnot((-1, -1), self.z_ancs(1))
+        t_5 += self.op_set_1('M', self.ancillas['x_bot'])
+        t_5 += self.op_set_1('M', self.ancillas['z_left'])
+
+        t_6 = self.op_set_1('H', self.x_ancs(1))
+
+        t_7 = self.op_set_1('M', self.x_ancs(1))
+        t_7 += self.op_set_1('M', self.z_ancs(1))
+        timesteps = [t_0, t_1, t_2, t_3, t_4, t_5, t_6, t_7]
+
+        # pad with waits, assuming destructive measurement
+        dat_locs = {self.map[q] for q in self.datas}
+        for step in timesteps:
+            step.extend([('I', q) for q in dat_locs - support(step)])
+
+        return timesteps
+        
     def op_set_1(self, name, qs):
         return [(name, self.map[q]) for q in qs]
 
