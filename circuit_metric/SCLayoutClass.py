@@ -540,6 +540,17 @@ class SCLayout(object):
 
         return pl
 
+    def submap(larger_layout):
+        """
+        returns an alternate map which takes the co-ordinates of the
+        current layout to the indices of a larger layout.
+
+        Will throw an error if a qubit isn't in the plane, won't throw
+        an error if you try to share qubits.
+        """
+        return bd.bidict({key: larger_layout.map[key]
+                            for key in self.map.keys()})
+
 # -----------------------convenience functions-------------------------#
 def support(timestep):
     """
