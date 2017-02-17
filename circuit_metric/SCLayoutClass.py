@@ -124,7 +124,7 @@ class SCLayout(object):
     Ancilla-symmetry is broken by the convention that there is a
     weight-2 XX stabiliser at the top left.
     """
-    def __init__(self, dx, dy=None, h_flip=False, v_flip=False):
+    def __init__(self, dx, dy=None, h_flip=False, v_flip=False, shift=None):
 
         dy = dx if dy is None else dy
 
@@ -197,6 +197,12 @@ class SCLayout(object):
         if h_flip:
             self.ancillas['z_left'], self.ancillas['z_right'] = self.ancillas['z_right'], self.ancillas['z_left']
             self.boundary['x_left'], self.boundary['x_right'] = self.boundary['x_right'], self.boundary['x_left']
+
+        if shift:
+            move = lambda tpl: (tpl[0] + shift[0], tpl[1] + shift[1])
+            self.datas = list(map(move, self.datas))
+            self.ancillas = {key: list(map(move, self.ancillas[key])) for key in self.ancillas.keys()}
+            self.boundary = {key: list(map(move, self.boundary[key])) for key in self.boundary.keys()}
 
         bits = self.datas + list(it.chain.from_iterable(self.ancillas.values()))
         self.map = crd_to_int(bits)
