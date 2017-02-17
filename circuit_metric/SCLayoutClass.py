@@ -124,7 +124,7 @@ class SCLayout(object):
     Ancilla-symmetry is broken by the convention that there is a
     weight-2 XX stabiliser at the top left.
     """
-    def __init__(self, dx, dy=None):
+    def __init__(self, dx, dy=None, h_flip=False, v_flip=False):
 
         dy = dx if dy is None else dy
 
@@ -150,12 +150,11 @@ class SCLayout(object):
 
         self.ancillas = anc
 
-        bits = self.datas + list(it.chain.from_iterable(anc.values()))
-
-        self.map = crd_to_int(bits)
         self.dx = dx
         self.dy = dy
         self.n = 2 * dx * dy - 1
+        self.h_flip = h_flip
+        self.v_flip = v_flip
 
         #############################################################
         boundary = {'z_top': (), 'z_bot': (), 'x_left': (), 'x_right': ()}
@@ -181,6 +180,26 @@ class SCLayout(object):
         self.zList = []
         self.zBndryList = []
         self.xBndryList = []
+
+        # Flips change co-ordinates of points
+        flp = lambda crd: flip(crd, self.xdim - 1, self.ydim - 1, h_flip, v_flip)
+        self.datas = list(map(flp, self.datas))
+        for key in self.ancillas.keys():
+            self.ancillas[key] = list(map(flp, self.ancillas[key]))
+        for key in self.boundary.keys():
+            self.boundary[key] = list(map(flp, self.boundary[key]))
+
+
+        # Flips also change the names of ancillas
+        if v_flip:
+            self.ancillas['x_top'], self.ancillas['x_bot'] = self.ancillas['x_bot'], self.ancillas['x_top']
+            self.boundary['z_top'], self.boundary['z_bot'] = self.boundary['z_bot'], self.boundary['z_top']
+        if h_flip:
+            self.ancillas['z_left'], self.ancillas['z_right'] = self.ancillas['z_right'], self.ancillas['z_left']
+            self.boundary['x_left'], self.boundary['x_right'] = self.boundary['x_right'], self.boundary['x_left']
+
+        bits = self.datas + list(it.chain.from_iterable(self.ancillas.values()))
+        self.map = crd_to_int(bits)
 
         for x,y in self.datas:
             self.crd2name[(x,y)] = "D" + str( self.map[ (x,y) ] ).zfill(3)
@@ -558,6 +577,9 @@ def diag_intersection(crd_0, crd_1, ancs=None):
         mid_v = vs[0]
 
     return mid_v
+
+def flip(crd, dx, dy, h, v):
+    return (dx - crd[0] if h else crd[0], dy - crd[1] if v else crd[1])
 
 #---------------------------------------------------------------------#
 
