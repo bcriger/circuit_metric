@@ -60,11 +60,56 @@ LOCS['MEASUREMENTS'] = ['M_X', 'M_Z']
 class PCLayout(object):
     """
     Planar Code Layout with smooth/rough boundaries.
+    Default: square lattice with dy = dx, rough boundaries at the
+    top/bottom.
     """
-    def __init__(self, dx, dy=None):
+    def __init__(self, dx, dy=None, top='rough'):
         dy = dy if dy else dx
         self.dx = dx
         self.dy = dy
+        
+        if top.lower() == 'rough':
+            v_edges = tuple(it.product(range(0, 2 * dx, 2),
+                                        range(1, 2 * dy + 1, 2)))
+            h_edges = tuple(it.product(range(1, 2 * dx - 1, 2),
+                                        range(2, 2 * dy, 2)))
+            x_ancs = tuple(it.product(range(0, 2 * dx, 2),
+                                        range(2, 2 * dy, 2)))
+            z_ancs = tuple(it.product(range(1, 2 * dx - 1, 2),
+                                        range(1, 2 * dy + 1, 2)))
+        elif top.lower() == 'smooth':
+            v_edges = tuple(it.product(range(2, 2 * dx, 2),
+                                        range(1, 2 * dy - 1, 2)))
+            h_edges = tuple(it.product(range(1, 2 * dx, 2),
+                                        range(0, 2 * dy, 2)))
+            x_ancs = tuple(it.product(range(2, 2 * dx, 2),
+                                        range(0, 2 * dy, 2)))
+            z_ancs = tuple(it.product(range(1, 2 * dx, 2),
+                                        range(1, 2 * dy - 1, 2)))
+        else:
+            raise ValueError("Bad value for top: {}".format(top))
+
+        self.datas = v_edges + h_edges
+        self.ancillas = {'X': x_ancs, 'Z': z_ancs}
+        bits = self.datas + sum(self.ancillas.values(), ())
+        self.map = crd_to_int(bits)
+
+    def stabilisers(self):
+        """
+        Sometimes it's convenient to have the stabilisers of a surface
+        code, especially when doing a 2d example.
+        """
+        stab_dict = {'X' : {}, 'Z' : {}}
+
+        for key in stab_dict.keys():
+            for anc in self.ancillas[key]:
+                d_set = [ad(anc, shft) for shft in TC_SHIFTS]
+                d_set = filter(lambda x: x in self.datas, d_set)
+                d_set = [self.map[d] for d in d_set]
+                stab = sp.X(d_set) if key == "X" else sp.Z(d_set)
+                stab_dict[key][self.map[anc]] = stab
+
+        return stab_dict
 
 class TCLayout(object):
     """

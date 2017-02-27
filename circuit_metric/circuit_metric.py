@@ -34,7 +34,7 @@ __all__ = [
             "quantify", "metric_to_nx", "css_metrics", "stack_metrics",
             "weighted_event_graph", "metric_to_matrix", "neg_log_odds",
             "apply_step", "fancy_weights", "bit_flip_metric",
-            "fault_list", "prop_fault"
+            "fault_list", "prop_fault", "is_allowed"
         ]
 
 #-----------------------------constants-------------------------------#
@@ -236,8 +236,17 @@ def str_faults(circ, gt_str):
     big_lst = [[] for _ in range(len(circ))]
     # god forgive me
     nq = prop_circ(circ, waits=True)[0].nq
-    
-    for dx, step in enumerate(prop_circ(circ)):
+    # prop_circ eliminates steps that have no allowed operations
+    # (all prep/meas), so we put empty steps in
+    p_circ = iter(prop_circ(circ))
+    fault_circ = []
+    for step in circ:
+        if filter(is_allowed, step) == []:
+            fault_circ.append([])
+        else:
+            fault_circ.append(p_circ.next())
+
+    for dx, step in enumerate(fault_circ):
         big_lst[dx] = filter(lambda p: p.wt != 0,
                              list(it.chain.from_iterable(
                               q.restricted_pauli_group(loc.qubits, nq)
