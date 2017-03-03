@@ -68,7 +68,10 @@ class PCLayout(object):
         self.dx = dx
         self.dy = dy
         
-        if top.lower() == 'rough':
+        top = top.lower()
+
+
+        if top == 'rough':
             v_edges = tuple(it.product(range(0, 2 * dx, 2),
                                         range(1, 2 * dy + 1, 2)))
             h_edges = tuple(it.product(range(1, 2 * dx - 1, 2),
@@ -77,7 +80,7 @@ class PCLayout(object):
                                         range(2, 2 * dy, 2)))
             z_ancs = tuple(it.product(range(1, 2 * dx - 1, 2),
                                         range(1, 2 * dy + 1, 2)))
-        elif top.lower() == 'smooth':
+        elif top == 'smooth':
             v_edges = tuple(it.product(range(2, 2 * dx, 2),
                                         range(1, 2 * dy - 1, 2)))
             h_edges = tuple(it.product(range(1, 2 * dx, 2),
@@ -93,6 +96,7 @@ class PCLayout(object):
         self.ancillas = {'X': x_ancs, 'Z': z_ancs}
         bits = self.datas + sum(self.ancillas.values(), ())
         self.map = crd_to_int(bits)
+        self.top = top
 
     def stabilisers(self):
         """
@@ -110,6 +114,21 @@ class PCLayout(object):
                 stab_dict[key][self.map[anc]] = stab
 
         return stab_dict
+
+    def logicals(self):
+        dx, dy = self.dx, self.dy
+
+        if self.top == 'rough':
+            x_pts = [self.map[(x, 1)] for x in range(0, 2 * dx, 2)]
+            z_pts = [self.map[(0, y)] for y in range(1, 2 * dy + 1, 2)]
+        elif self.top == 'smooth':
+            x_pts = [self.map[(1, y)] for y in range(0, 2 * dy, 2)]
+            z_pts = [self.map[(x, 0)] for x in range(1, 2 * dx + 1, 2)]
+        else:
+            raise ValueError("top type "
+                                "{} not allowed".format(self.top))
+        
+        return [sp.X(x_pts), sp.Z(z_pts)]
 
 class TCLayout(object):
     """
