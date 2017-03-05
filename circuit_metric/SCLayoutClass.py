@@ -70,7 +70,6 @@ class PCLayout(object):
         
         top = top.lower()
 
-
         if top == 'rough':
             v_edges = tuple(it.product(range(0, 2 * dx, 2),
                                         range(1, 2 * dy + 1, 2)))
@@ -129,6 +128,68 @@ class PCLayout(object):
                                 "{} not allowed".format(self.top))
         
         return [sp.X(x_pts), sp.Z(z_pts)]
+
+    def boundary_points(self, log_type):
+        """
+        Returns a set of fictional points that you can use to turn a
+        boundary distance finding problem into a pairwise distance
+        finding problem, with the typical IID XZ 2D scenario.
+        logicals of the type 'log_type' have to traverse between pairs
+        of output boundary points
+        """
+
+        log_type = log_type.upper()
+        
+        if self.top == 'rough':
+            # Z boundary at top/bottom
+            anc_ys = [y for x, y in self.ancillas['X']]
+            min_y, max_y = min(anc_ys), max(anc_ys)
+
+            y_lo = [(x, y - 2) for x, y in self.ancillas['X'] if y == min_y]
+            y_hi = [(x, y + 2) for x, y in self.ancillas['X'] if y == max_y]
+
+            z_bdy = tuple(y_lo + y_hi)
+
+            # X boundary on left/right
+            anc_xs = [x for x, y in self.ancillas['Z']]
+            min_x, max_x = min(anc_xs), max(anc_xs)
+
+            x_lo = [(x - 2, y) for x, y in self.ancillas['Z'] if x == min_x]
+            x_hi = [(x + 2, y) for x, y in self.ancillas['Z'] if x == max_x]
+
+            x_bdy = tuple(x_lo + x_hi)
+        
+        elif self.top == 'smooth':
+            # X boundary at top/bottom
+            anc_ys = [y for x, y in self.ancillas['Z']]
+            min_y, max_y = min(anc_ys), max(anc_ys)
+
+            y_lo = [(x, y - 2) for x, y in self.ancillas['Z'] if y == min_y]
+            y_hi = [(x, y + 2) for x, y in self.ancillas['Z'] if y == max_y]
+
+            x_bdy = tuple(y_lo + y_hi)
+
+            # Z boundary on left/right
+            anc_xs = [x for x, y in self.ancillas['X']]
+            min_x, max_x = min(anc_xs), max(anc_xs)
+
+            x_lo = [(x - 2, y) for x, y in self.ancillas['X'] if x == min_x]
+            x_hi = [(x + 2, y) for x, y in self.ancillas['X'] if x == max_x]
+
+            z_bdy = tuple(x_lo + x_hi)
+        
+        if log_type == 'X':
+            return x_bdy
+        elif log_type == 'Z':
+            return z_bdy
+        else:
+            raise ValueError("unknown logical type: {}".format(log_type))
+    # legacy
+    def x_ancs(self):
+        return self.ancillas['X']
+
+    def z_ancs(self):
+        return self.ancillas['Z']
 
 class TCLayout(object):
     """
