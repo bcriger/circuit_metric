@@ -711,7 +711,7 @@ def diag_intersection(crd_0, crd_1, ancs=None):
         ]
 
     if ancs:
-        if vs[0] in sum(ancs, ()):
+        if vs[0] in sum(ancs, []):
             mid_v = vs[0]
         else:
             mid_v = vs[1]
