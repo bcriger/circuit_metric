@@ -90,17 +90,16 @@ def r_event_prob(prob_set, r=1):
     return sum(set_prob(prob_set, idx_set) for idx_set in idx_sets)
 
 
-def prob_odd_events(prob_set, order=1):
+def prob_odd_events(prob_set):
     """
     Returns the probability that an odd number of events from a given 
-    set has occurred, to a given order in a Taylor expansion. This 
-    expansion is evaluated by noting that the r'th-order term 
-    corresponds to the cases in which r events occur. 
-    Input: prob_set; a set of probabilities (numeric or symbolic)
-    Input: order; the highest-order term in the expansion
-    Output: a probability sum, type determined by input.
+    set has occurred, by iterating over the set
     """
-    rs = range(1, order + 1, 2)
+    p_odd = 0.
+    for p in prob_set:
+        p_odd = p * (1. - p_odd) + (1. - p) * p_odd
+    return p_odd
+
     return sum(r_event_prob(prob_set, r) for r in rs)
 
 
