@@ -103,7 +103,7 @@ def prob_odd_events(prob_set):
     return sum(r_event_prob(prob_set, r) for r in rs)
 
 
-def dict_to_metric(pair_p_dict, order=1, weight='neg_log_odds',
+def dict_to_metric(pair_p_dict, weight='neg_log_odds',
                     wt_bits=None, fmt=None):
     """
     The output of the error propagation and combinatorics is a
@@ -150,11 +150,11 @@ def dict_to_metric(pair_p_dict, order=1, weight='neg_log_odds',
     #decide based on what's requested whether to give probabilities, 
     #Fowler -log(p) weights, or DKLP -log( p / ( 1 - p ) ) weights. 
     if weight == 'prob':
-        val_f = lambda val: prob_odd_events(val, order=order)
+        val_f = lambda val: prob_odd_events(val)
     elif weight == 'fowler':
-        val_f = lambda val: -log(prob_odd_events(val, order=order))
+        val_f = lambda val: -log(prob_odd_events(val))
     elif weight == 'neg_log_odds':
-        val_f = lambda val: neg_log_odds(val, order=order)
+        val_f = lambda val: neg_log_odds(val)
 
     pair_p_dict = {key: val_f(val) for key, val in pair_p_dict.items()}
 
@@ -440,7 +440,7 @@ def fault_list(circ, p, test=False):
         for key in key_set:
             if quantify(out_lst[dx], lambda tpl: tpl[0] == key) > 1:
                 repeat_ps = [tpl[1] for tpl in out_lst[dx] if tpl[0] == key]
-                unique_p = prob_odd_events(repeat_ps, len(repeat_ps))
+                unique_p = prob_odd_events(repeat_ps)
                 out_lst[dx] = [elm for elm in out_lst[dx] if elm[0] != key]
                 out_lst[dx].append((key, unique_p))
         
@@ -476,9 +476,7 @@ is_allowed.__doc__ = """tests whether the zeroth element of a tuple is
 uniques = lambda x: list(set(reduce(add, x)))
 uniques.__doc__ = "returns unique elements from an iterator"
 
-
 product = lambda num_iter: reduce(mul, num_iter)
-
 
 prep_fault = {'P_X': 'Z', 'P_Z': 'X'}
 meas_fault = {'M_X': 'Z', 'M_Z': 'X'}
@@ -517,8 +515,8 @@ def metric_to_nx(vertices, edges, weights):
 v_shft = lambda v, t: v[:-1] + (v[-1] + t,)
 v_shft.__doc__ = "Shifts the last co-ordinate of a tuple v by t." 
 
-def neg_log_odds(p_set, order):
-    p_odd = prob_odd_events(p_set, order=order)
+def neg_log_odds(p_set):
+    p_odd = prob_odd_events(p_set)
     log = appropriate_log(p_set)
     return -log( p_odd / ( 1. - p_odd ))
 
